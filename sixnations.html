@@ -2471,8 +2471,8 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     const tryScorerPool=[];
     Object.values(filled).filter(Boolean).forEach(p=>{
       const posW=POS_TRY_WEIGHT[p.pos]||1;
-      // Sharper curve so standout players dominate the try pool — lets a star rack up a real haul over the season
-      const ratingW=Math.pow(Math.max(0.05,(p.rating-65)/30),1.8);
+      // Sharper curve so a standout player dominates the try pool — gives a true star a real haul over the season
+      const ratingW=Math.pow(Math.max(0.05,(p.rating-65)/30),3);
       const totalW=Math.max(1,Math.round(posW*ratingW*8));
       const lastName=p.name.split(' ').slice(-1)[0];
       for(let i=0;i<totalW;i++) tryScorerPool.push(lastName);
@@ -2494,7 +2494,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     const oppDef=oppRating;
     const backsWeakness=(chinkUnit==='halves'||chinkUnit==='centres'||chinkUnit==='back3')?chink*0.08:0;
     const atkAdv=(attackRating-backsWeakness*10-oppDef)*0.11+atkCard;
-    const myTries=Math.max(0,Math.min(9,Math.round(1.6+atkAdv+(Math.random()*3.5-1.75))));
+    const myTries=Math.max(0,Math.min(9,Math.round(1.7+atkAdv+(Math.random()*3.5-1.75))));
     const setPieceWeakness=(chinkUnit==='front'||chinkUnit==='locks')?chink*0.10:0;
     const defWeakness=(chinkUnit==='backRow')?chink*0.08:0;
     const defAdv=(defenceRating-setPieceWeakness*10-defWeakness*10-oppAtk)*0.11+defCard;

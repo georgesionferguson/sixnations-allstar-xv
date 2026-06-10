@@ -2925,10 +2925,8 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       `${run.slam?'🏆 GRAND SLAM':run.pos===1?'🏆 Champions':ordinal(run.pos)+' place'} — ${run.wins}W ${run.draws}D ${run.losses}L`,
       `${run.pts} pts · Squad: ${run.overall} OVR`,
       goldenBoot?`👟 Top Try Scorer: ${goldenBoot.name} (${goldenBoot.tries} tries)`:'',
-      pot?`🌟 Player of Tournament: ${pot.name}`:'',
-      '',
-      '⚡ Think you could do better? Build your own XV free:',
-      'https://sixnationsallstars.com'
+      pot?`🌟 Player of the Tournament: ${pot.name}`:'',
+      '⚡ Think you could do better? Build your own XV free → sixnationsallstars.com'
     ].filter(Boolean).join('\n');
 
     // Build overlay

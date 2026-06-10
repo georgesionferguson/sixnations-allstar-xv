@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Six Nations All-Stars — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0a04;
+    --ink: #f0ebe0;
+    --muted: #8a7e6a;
+    --muted2: #5e5446;
+    --accent: #c8a84b;
+    --line: rgba(255,255,255,.08);
+    --panel: rgba(255,255,255,.03);
+    --hover: rgba(200,168,75,.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: "DM Sans", "Helvetica Neue", Arial, sans-serif;
+    background: radial-gradient(ellipse 120% 80% at 50% -10%, #1a1208 0%, var(--bg) 65%);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 20px;
+  }
+
+  .page {
+    width: min(520px, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* back link */
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: -8px;
+    transition: color .15s;
+  }
+  .back:hover { color: var(--ink); }
+
+  /* page heading */
+  .pg-head { margin-bottom: 4px; }
+  .pg-eyebrow {
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .pg-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+  }
+
+  /* section */
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  /* option cards */
+  .cards { display: flex; flex-direction: column; gap: 8px; }
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    background: var(--panel);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    position: relative;
+    user-select: none;
+  }
+  .card:hover { background: var(--hover); }
+  .card.selected {
+    border-color: var(--accent);
+    background: rgba(200,168,75,.08);
+  }
+  .card-icon {
+    font-size: 22px;
+    width: 36px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .card-body { flex: 1; }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .card-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--muted2);
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    transition: .15s;
+  }
+  .card.selected .card-check {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .card.selected .card-check::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #0e0a04;
+  }
+  .default-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted2);
+    padding: 2px 7px;
+    border: 1px solid var(--muted2);
+    border-radius: 999px;
+  }
+  .card.selected .default-tag {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* option sections — big two-column cards */
+  .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .opt-card {
+    padding: 18px 16px;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+    font-family: "DM Sans", sans-serif;
+    text-align: left;
+    width: 100%;
+  }
+  .opt-card:hover { background: var(--hover); border-color: var(--muted2); }
+  .opt-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 5px;
+    transition: color .15s;
+  }
+  .opt-card-desc {
+    font-size: 12px;
+    color: var(--muted2);
+    line-height: 1.5;
+    transition: color .15s;
+  }
+  .opt-card.selected .opt-card-desc { color: var(--muted); }
+
+  /* ratings ON — gold */
+  #ratingsGroup [data-val="on"].selected { border-color: #c8a84b; background: rgba(200,168,75,.09); }
+  #ratingsGroup [data-val="on"].selected .opt-card-title { color: #c8a84b; }
+  /* ratings OFF — slate blue */
+  #ratingsGroup [data-val="off"].selected { border-color: #7b8fc4; background: rgba(123,143,196,.09); }
+  #ratingsGroup [data-val="off"].selected .opt-card-title { color: #7b8fc4; }
+
+  /* season — warm amber */
+  #ratingTypeGroup [data-val="season"].selected { border-color: #c89a4b; background: rgba(200,154,75,.09); }
+  #ratingTypeGroup [data-val="season"].selected .opt-card-title { color: #c89a4b; }
+  /* prime — teal green */
+  #ratingTypeGroup [data-val="prime"].selected { border-color: #4bc8a0; background: rgba(75,200,160,.09); }
+  #ratingTypeGroup [data-val="prime"].selected .opt-card-title { color: #4bc8a0; }
+
+  /* CTA */
+  .cta {
+    width: 100%;
+    padding: 17px;
+    background: var(--accent);
+    color: #0e0a04;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .3px;
+    font-family: "DM Sans", sans-serif;
+    box-shadow: 0 8px 24px rgba(200,168,75,.22);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .cta:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(200,168,75,.32); }
+
+  /* divider */
+  hr { border: none; border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <a class="back" href="index.html">← Back</a>
+
+  <div class="pg-head">
+    <div class="pg-eyebrow">Six Nations All-Stars</div>
+    <div class="pg-title">Set up your run</div>
+  </div>
+
+  <hr>
+
+  <!-- DIFFICULTY -->
+  <div>
+    <div class="section-label">Difficulty</div>
+    <div class="cards" id="diffCards">
+
+      <div class="card" data-diff="easy" onclick="selectDiff('easy')">
+        <div class="card-icon">🟢</div>
+        <div class="card-body">
+          <div class="card-title">Easy</div>
+          <div class="card-desc">4 redraws — more chances to find the player you want</div>
+        </div>
+        <div class="card-check"></div>
+      </div>
+
+      <div class="card selected" data-diff="normal" onclick="selectDiff('normal')">
+        <div class="card-icon">🟡</div>
+        <div class="card-body">
+          <div class="card-title">Normal <span class="default-tag">Default</span></div>
+          <div class="card-desc">2 redraws — the intended experience</div>
+        </div>
+        <div class="card-check"></div>
+      </div>
+
+      <div class="card" data-diff="hard" onclick="selectDiff('hard')">
+        <div class="card-icon">🔴</div>
+        <div class="card-body">
+          <div class="card-title">Hard</div>
+          <div class="card-desc">No redraws, ratings hidden — trust your rugby knowledge</div>
+        </div>
+        <div class="card-check"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- OPTIONS -->
+  <div>
+    <div class="section-label">Show Ratings</div>
+    <div class="opt-grid" id="ratingsGroup">
+      <button class="opt-card selected" data-val="on" onclick="selectOption('ratings','on')">
+        <div class="opt-card-title">On</div>
+        <div class="opt-card-desc">Player ratings visible in the squad list</div>
+      </button>
+      <button class="opt-card" data-val="off" onclick="selectOption('ratings','off')">
+        <div class="opt-card-title">Off</div>
+        <div class="opt-card-desc">Blind mode — trust your rugby knowledge</div>
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div class="section-label">Player Ratings</div>
+    <div class="opt-grid" id="ratingTypeGroup">
+      <button class="opt-card selected" data-val="season" onclick="selectOption('ratingType','season')">
+        <div class="opt-card-title">Season</div>
+        <div class="opt-card-desc">Rated as they were that specific season</div>
+      </button>
+      <button class="opt-card" data-val="prime" onclick="selectOption('ratingType','prime')">
+        <div class="opt-card-title">Prime</div>
+        <div class="opt-card-desc">Every player at their career-best rating</div>
+      </button>
+    </div>
+  </div>
+
+  <hr>
+
+  <button class="cta" onclick="startGame()">Start Run →</button>
+
+</div>
+
+<script>
+  // state
+  let diff = 'normal';
+  let showRatings = true;
+  let ratingType = 'season'; // 'season' or 'prime'
+
+  function selectDiff(d) {
+    diff = d;
+    document.querySelectorAll('#diffCards .card').forEach(c => {
+      c.classList.toggle('selected', c.dataset.diff === d);
+    });
+  }
+
+  function selectOption(key, val) {
+    if (key === 'ratings') {
+      showRatings = val === 'on';
+      document.querySelectorAll('#ratingsGroup .opt-card').forEach(b => b.classList.toggle('selected', b.dataset.val === val));
+    } else if (key === 'ratingType') {
+      ratingType = val;
+      document.querySelectorAll('#ratingTypeGroup .opt-card').forEach(b => b.classList.toggle('selected', b.dataset.val === val));
+    }
+  }
+
+  function startGame() {
+    const rerolls = diff === 'easy' ? 4 : diff === 'hard' ? 0 : 2;
+    const params = new URLSearchParams({
+      rerolls,
+      showRatings: showRatings ? '1' : '0',
+      ratingType,
+      diff
+    });
+    window.location.href = 'sixnations.html?' + params.toString();
+  }
+</script>
+</body>
+</html>

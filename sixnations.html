@@ -1,0 +1,3003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Six Nations All-Star XV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;0,9..40,800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0e0a04;
+    --bg-2:#150f06;
+    --pitch:#0e3d1a;
+    --pitch-2:#0a2e13;
+    --pitch-line:rgba(180,220,190,.38);
+    --ink:#f0ebe0;
+    --muted:#8a7e6a;
+    --muted-2:#5e5446;
+    --accent:#c8a84b;
+    --accent-dark:#a8883a;
+    --gold:#c8a84b;
+    --line:rgba(255,255,255,.08);
+    --panel:rgba(255,255,255,.03);
+    --eng:#dcdcdc; --ire:#179b54; --sco:#1a3e8c; --wal:#c0152a; --fra:#1c5cc4; --ita:#0e7ab5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:"DM Sans","Helvetica Neue",Arial,sans-serif;
+    background:radial-gradient(140% 100% at 60% -10%, #1a1208 0%, var(--bg) 60%);
+    color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .app{display:grid;grid-template-columns:420px 1fr;min-height:100vh}
+
+  /* ============ LEFT: PITCH RAIL ============ */
+  .rail{padding:24px 20px;border-right:1px solid var(--line);position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .rail-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+  .rail-head .fl{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .rail-head h2{font-size:22px;font-weight:800;margin-top:2px;letter-spacing:-.3px}
+  .rerolls{text-align:right;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+  .rerolls .cnt{font-size:15px;font-weight:800;color:var(--gold);letter-spacing:0}
+  .rerolls .resync{background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;margin-left:6px;vertical-align:middle}
+  .rerolls .resync:hover{color:var(--ink)}
+  .topbar{height:3px;background:rgba(255,255,255,.06);border-radius:9px;margin-bottom:18px;overflow:hidden}
+
+  /* squad ratings panel */
+  .ratings{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:12px 14px 8px}
+  .ov-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+  .ov-lbl{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);padding-top:10px}
+  .ov-num{font-family:"DM Sans";font-weight:800;font-size:46px;line-height:.9;letter-spacing:-2px;color:var(--ink)}
+  .unit-list{display:flex;flex-direction:column;gap:13px}
+  .unit .u-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  .unit .u-name{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--ink)}
+  .unit .u-ico{width:15px;text-align:center;font-size:13px;opacity:.9}
+  .unit .u-val{font-size:14px;font-weight:800;color:var(--ink)}
+  .unit .u-val.empty{color:var(--muted-2);font-weight:600}
+  .u-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+  .u-bar > i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ff5b6e,#ff9a3d);transition:width .35s ease}
+  .topbar > i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+
+  .pitch{position:relative;aspect-ratio:60/100;border-radius:14px;overflow:visible;background:transparent;border:none;}
+  .pitch-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:1;border-radius:14px;}
+  .shirt{z-index:4;}
+  .shirt{
+    position:absolute;transform:translate(-50%,-50%);width:clamp(50px,13vw,62px);
+    cursor:default;text-align:center;z-index:4;background:none;border:none;color:var(--ink);transition:transform .12s;
+  }
+  .shirt:hover{transform:translate(-50%,-50%)}
+  .shirt:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:10px}
+  .ring{width:46px;height:46px;margin:0 auto;border-radius:50%;display:grid;place-items:center;border:1.5px dashed var(--muted-2);position:relative;transition:.15s;}
+  .shirt.empty .ring{border-style:dashed}
+  .shirt.filled .ring{border-style:solid;border-color:transparent}
+  .shirt.active .ring{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,168,75,.25)}
+  .ring .pos{font-size:12px;font-weight:800;letter-spacing:.3px;color:var(--ink)}
+  .shirt.filled .ring{background:var(--natbg,#16321f)}
+  .shirt .lbl{margin-top:5px;font-size:10px;color:var(--muted);letter-spacing:.2px}
+  .shirt.filled .lbl{color:var(--ink);font-weight:600}
+  .shirt .sub{font-size:9px;color:var(--gold);margin-top:1px}
+  .shirt .rt{position:absolute;top:-6px;right:-6px;background:var(--ink);color:#0e0a04;font-size:10px;font-weight:800;border-radius:50%;width:20px;height:20px;display:grid;place-items:center}
+
+  /* ============ RIGHT: ACTION ============ */
+  .main{padding:46px 40px;display:flex;flex-direction:column}
+  .eyebrow{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);text-align:center}
+  .headline{font-size:clamp(24px,3vw,34px);font-weight:800;text-align:center;margin-top:6px;letter-spacing:-.5px}
+  .stage-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:0;min-height:440px}
+
+  /* SPIN state */
+  .spin-zone{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:30px;width:100%}
+  .pairing{display:flex;align-items:center;gap:18px;margin:10px 0 4px}
+  .triple{display:flex;gap:12px;margin:14px 0 4px;flex-wrap:wrap;justify-content:center}
+  .triple .slotbox{width:150px;height:104px}
+  .slotbox .natline{font-size:18px;font-weight:800}
+  .slotbox .yearline{font-size:14px;font-weight:700;color:var(--muted)}
+  .draw-groups{display:flex;flex-direction:column;gap:16px;max-height:52vh;overflow-y:auto;padding-right:4px}
+  .draw-group .draw-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 70%,transparent);padding:2px 0;z-index:1}
+  .draw-group .opts{max-height:none;overflow:visible}
+  .slotbox{width:188px;height:104px;border:1px solid var(--line);border-radius:14px;background:var(--panel);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:.2s}
+  .slotbox .cap{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .slotbox .val{font-size:22px;font-weight:800;letter-spacing:-.3px;min-height:26px}
+  .slotbox.spinning .val{color:var(--muted)}
+  .slotbox.locked{border-color:var(--accent);background:rgba(200,168,75,.08)}
+  .pairing .x{color:var(--muted-2);font-size:18px}
+  .spinbtn{
+    margin-top:18px;background:var(--accent);color:#0e0a04;border:none;border-radius:8px;
+    padding:16px 40px;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;
+    box-shadow:0 8px 24px rgba(200,168,75,.22);transition:.15s;letter-spacing:.3px;font-family:"DM Sans",sans-serif;
+  }
+  .spinbtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 30px rgba(200,168,75,.32)}
+  .spinbtn:disabled{opacity:.4;cursor:default;box-shadow:none}
+  .spin-hint{font-size:12px;color:var(--muted);margin-top:12px}
+
+  /* PICK state */
+  .pick-zone{width:100%;max-width:520px;margin-top:24px}
+  .pick-banner{text-align:center;margin-bottom:18px}
+  .pick-banner .draw{display:inline-flex;align-items:center;gap:10px;font-size:18px;font-weight:800}
+  .natpill{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700}
+  .seasonpill{padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(255,255,255,.06);color:var(--ink)}
+  .pick-sub{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .opts{display:flex;flex-direction:column;gap:9px;max-height:46vh;overflow-y:auto;padding-right:4px}
+  .opt{display:flex;align-items:center;gap:13px;width:100%;text-align:left;cursor:pointer;color:var(--ink);
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;transition:.12s}
+  .opt:hover{border-color:var(--accent);background:rgba(200,168,75,.06);transform:translateX(3px)}
+  .opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .opt:disabled{opacity:.3;cursor:not-allowed;transform:none}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .opt .nm{flex:1}
+  .opt .nm b{display:block;font-size:14.5px;font-weight:700}
+  .opt .nm span{font-size:11px;color:var(--muted)}
+  .opt .rate{font-family:"DM Sans";font-weight:800;font-size:19px;min-width:34px;text-align:center;letter-spacing:-.5px}
+  .rate.t1{color:#36d17a} .rate.t2{color:#9ade4a} .rate.t3{color:var(--gold)} .rate.t4{color:#ff9a55} .rate.t5{color:#ff5b6e}
+  .pick-actions{display:flex;gap:10px;margin-top:14px;justify-content:center}
+  .ghost{background:none;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:10px 18px;font-size:12.5px;cursor:pointer;transition:.12s;font-family:inherit}
+  .ghost:hover{border-color:var(--muted);color:var(--ink)}
+  .ghost:disabled{opacity:.35;cursor:default}
+
+  .cta{width:100%;margin-top:22px;border:none;border-radius:8px;padding:17px;font-size:16px;font-weight:700;
+    cursor:pointer;background:var(--accent);color:#0e0a04;box-shadow:0 8px 24px rgba(200,168,75,.22);transition:.15s;letter-spacing:.3px;font-family:inherit;}
+  .cta:hover:not(:disabled){transform:translateY(-2px)}
+  .cta:disabled{background:#2a2318;color:#5e5040;cursor:not-allowed;box-shadow:none}
+
+  footer{margin-top:38px;border-top:1px solid var(--line);padding-top:18px;font-size:11px;color:var(--muted-2);line-height:1.6;text-align:center;max-width:760px;margin-left:auto;margin-right:auto}
+
+  /* ============ MODAL ============ */
+  .modal-bg{position:fixed;inset:0;background:rgba(2,5,8,.85);backdrop-filter:blur(6px);display:none;place-items:center;z-index:50;padding:20px}
+  .modal-bg.show{display:grid}
+  .modal{width:min(680px,100%);max-height:90vh;overflow-y:auto;background:linear-gradient(180deg,#1a1208,#100c06);
+    border:1px solid var(--line);border-radius:16px;padding:28px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .modal h2{font-size:24px;font-weight:800;letter-spacing:-.5px}
+  .modal .sub{color:var(--muted);font-size:13px;margin-top:3px;margin-bottom:20px}
+  .finish-banner{text-align:center;padding:20px;border-radius:16px;margin-bottom:20px;font-size:22px;font-weight:800;letter-spacing:-.3px}
+  .finish-banner.gs{background:linear-gradient(180deg,rgba(231,181,59,.16),rgba(231,181,59,.05));border:1px solid var(--gold);color:var(--gold)}
+  .finish-banner.win{background:linear-gradient(180deg,rgba(200,168,75,.14),rgba(200,168,75,.04));border:1px solid var(--accent);color:var(--accent)}
+  .finish-banner.mid{background:var(--panel);border:1px solid var(--line);color:var(--ink)}
+  .finish-banner small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:5px;letter-spacing:0}
+  .result-actions{display:flex;gap:10px;margin:6px 0 10px}
+  .result-actions .go-again{flex:2;margin-top:0}
+  .result-actions .share{flex:1;margin-top:0}
+  .table{width:100%;border-collapse:collapse;margin-bottom:22px;font-size:13px}
+  .table th{text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
+  .table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.04)}
+  .table tr.you td{background:rgba(200,168,75,.06)}
+  .table tr.you .teamcell{font-weight:800;color:var(--accent)}
+  .table td.c{text-align:center}
+  .table td.pts{font-weight:800;text-align:center}
+  .teamcell{display:flex;align-items:center;gap:9px}
+  .teamcell .dot{width:9px;height:9px;border-radius:50%}
+  .rounds h3{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:4px 0 12px}
+  .rnd{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px}
+  .rnd .rh{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px}
+  .rnd .game{display:flex;align-items:center;gap:12px;font-weight:800}
+  .rnd .game .t{flex:1}
+  .rnd .game .t.away{text-align:right}
+  .rnd .game .sc{font-size:20px;min-width:30px;text-align:center}
+  .rnd .game .you{color:var(--accent)}
+  .rnd .rep{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.4}
+  .modal .close{width:100%;margin-top:8px;border:1px solid var(--line);background:none;color:var(--ink);border-radius:11px;padding:13px;cursor:pointer;font-size:13px;letter-spacing:.5px}
+  .modal .close:hover{background:rgba(255,255,255,.05)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(140%);background:#0c1218;color:var(--ink);
+    padding:12px 22px;border-radius:999px;font-size:13px;border:1px solid var(--accent);box-shadow:0 10px 30px rgba(0,0,0,.5);transition:transform .25s;z-index:60}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+  ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:9px}
+
+  /* ============ MOBILE ============ */
+  @media(max-width:920px){
+    html,body{height:auto}
+    .app{display:flex;flex-direction:column;min-height:100vh}
+
+    /* sticky top bar with pitch toggle */
+    .rail{
+      position:static;height:auto;overflow:visible;
+      border-right:none;border-bottom:1px solid var(--line);
+      padding:14px 16px 0;
+    }
+    .rail-head{margin-bottom:8px}
+    .rail-head .fl{font-size:10px}
+    .rail-head h2{font-size:18px}
+
+    .topbar{margin-bottom:10px}
+
+    /* pitch collapses — toggled by JS */
+    .pitch-wrap{overflow:hidden;transition:max-height .3s ease;}
+    .pitch-wrap.collapsed{max-height:0}
+    .pitch-wrap.open{max-height:700px}
+    .pitch{aspect-ratio:unset;height:300px;}
+    .pitch-svg{height:300px}
+
+    /* shirt sizes smaller on mobile */
+    .shirt{width:clamp(42px,10vw,54px)}
+    .ring{width:34px;height:34px}
+    .ring .pos{font-size:10px}
+    .shirt .lbl{font-size:9px;margin-top:3px;color:var(--ink);font-weight:600}
+    .shirt.empty .lbl{color:var(--muted);font-weight:400}
+    .shirt .sub{font-size:7px}
+    .shirt .rt{width:16px;height:16px;font-size:8px;top:-4px;right:-4px}
+
+    /* current draw panel inline */
+    #currentDrawPanel{margin-top:0;border-radius:0;border-left:none;border-right:none;border-top:none}
+
+    /* main panel */
+    .main{padding:20px 16px;flex:1}
+    .eyebrow{font-size:11px}
+    .headline{font-size:20px}
+    .stage-wrap{min-height:unset;justify-content:flex-start;margin-top:16px}
+
+    /* spin button full width */
+    .spinbtn{width:100%;justify-content:center;padding:15px;font-size:15px;margin-top:12px}
+    .spin-zone{margin-top:0}
+
+    /* squad list */
+    .opts{max-height:45vh}
+    .opt .nm b{font-size:13.5px}
+    .pick-zone{margin-top:8px}
+
+    /* sort buttons smaller */
+    .ghost{padding:8px 12px;font-size:12px}
+
+    /* CTA */
+    .cta{padding:15px;font-size:15px}
+
+    /* ratings compact on mobile — two column grid */
+    .ratings{padding:12px}
+    .ov-row{margin-bottom:10px}
+    .ov-num{font-size:36px}
+    .unit-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .u-bar{height:5px}
+
+    /* modal full screen on mobile */
+    .modal{border-radius:12px;padding:20px}
+    .modal h2{font-size:20px}
+    .table{font-size:12px}
+    .table td,.table th{padding:8px 6px}
+
+    footer{margin-top:24px;padding-top:14px}
+  }
+
+  @media(max-width:400px){
+    .shirt{width:32px}
+    .ring{width:28px;height:28px}
+    .ring .pos{font-size:8px}
+    .shirt .lbl{font-size:8px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- LEFT RAIL -->
+  <aside class="rail">
+    <div class="rail-head">
+      <div><div class="fl">Your XV</div><h2>All-Star Selection</h2></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="rerolls">Rerolls<br><span class="cnt" id="rerollCnt">11</span>
+          <button class="resync" id="resetBtn" title="Reset squad">↻</button></div>
+        <div style="text-align:right">
+          <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Overall</div>
+          <div id="ovNum" style="font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--ink);line-height:1">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="topbar"><i id="topFill"></i></div>
+    <div class="pitch-wrap open" id="pitchWrap">
+    <div class="pitch" id="pitch">
+      <svg class="pitch-svg" viewBox="0 0 240 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="grass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#0d4a1c"/>
+          <stop offset="20%" stop-color="#0f5420"/>
+          <stop offset="50%" stop-color="#124d1e"/>
+          <stop offset="80%" stop-color="#0f5420"/>
+          <stop offset="100%" stop-color="#0d4a1c"/>
+        </linearGradient>
+        <linearGradient id="stripe" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.03)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0.04)"/>
+        </linearGradient>
+        <clipPath id="pitchClip">
+          <rect x="0" y="0" width="240" height="400" rx="12"/>
+        </clipPath>
+      </defs>
+
+      <g clip-path="url(#pitchClip)">
+        <!-- base grass -->
+        <rect x="0" y="0" width="240" height="400" fill="url(#grass)" rx="12"/>
+        <!-- alternating stripe bands -->
+        <rect x="0" y="0"   width="240" height="40" fill="rgba(255,255,255,.022)"/>
+        <rect x="0" y="80"  width="240" height="40" fill="rgba(255,255,255,.022)"/>
+        <rect x="0" y="160" width="240" height="40" fill="rgba(255,255,255,.022)"/>
+        <rect x="0" y="240" width="240" height="40" fill="rgba(255,255,255,.022)"/>
+        <rect x="0" y="320" width="240" height="40" fill="rgba(255,255,255,.022)"/>
+
+        <!-- pitch border -->
+        <rect x="8" y="8" width="224" height="384" rx="6" fill="none" stroke="rgba(180,230,200,.4)" stroke-width="1.5"/>
+
+        <!-- dead ball lines -->
+        <line x1="8" y1="22"  x2="232" y2="22"  stroke="rgba(180,230,200,.35)" stroke-width="1"/>
+        <line x1="8" y1="378" x2="232" y2="378" stroke="rgba(180,230,200,.35)" stroke-width="1"/>
+
+        <!-- try lines / goal lines -->
+        <line x1="8" y1="40"  x2="232" y2="40"  stroke="rgba(200,240,210,.55)" stroke-width="1.8"/>
+        <line x1="8" y1="360" x2="232" y2="360" stroke="rgba(200,240,210,.55)" stroke-width="1.8"/>
+
+        <!-- 22m lines -->
+        <line x1="8" y1="112" x2="232" y2="112" stroke="rgba(180,230,200,.38)" stroke-width="1.2"/>
+        <line x1="8" y1="288" x2="232" y2="288" stroke="rgba(180,230,200,.38)" stroke-width="1.2"/>
+
+        <!-- halfway -->
+        <line x1="8" y1="200" x2="232" y2="200" stroke="rgba(180,230,200,.45)" stroke-width="1.5"/>
+
+        <!-- centre spot -->
+        <circle cx="120" cy="200" r="2" fill="rgba(180,230,200,.4)"/>
+
+        <!-- 10m lines (dashed) -->
+        <line x1="8" y1="156" x2="232" y2="156" stroke="rgba(180,230,200,.2)" stroke-width="1" stroke-dasharray="6,5"/>
+        <line x1="8" y1="244" x2="232" y2="244" stroke="rgba(180,230,200,.2)" stroke-width="1" stroke-dasharray="6,5"/>
+
+        <!-- ===== RUGBY POSTS TOP ===== -->
+        <!-- base / upright stem -->
+        <line x1="120" y1="40" x2="120" y2="10" stroke="rgba(220,245,225,.8)" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- crossbar -->
+        <line x1="90" y1="19" x2="150" y2="19" stroke="rgba(220,245,225,.8)" stroke-width="2" stroke-linecap="round"/>
+        <!-- left upright -->
+        <line x1="90" y1="19" x2="90" y2="4" stroke="rgba(220,245,225,.75)" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- right upright -->
+        <line x1="150" y1="19" x2="150" y2="4" stroke="rgba(220,245,225,.75)" stroke-width="1.8" stroke-linecap="round"/>
+
+        <!-- ===== RUGBY POSTS BOTTOM (inverted, at far end) ===== -->
+        <line x1="120" y1="360" x2="120" y2="390" stroke="rgba(220,245,225,.8)" stroke-width="2.2" stroke-linecap="round"/>
+        <line x1="90"  y1="381" x2="150" y2="381" stroke="rgba(220,245,225,.8)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="90"  y1="381" x2="90"  y2="396" stroke="rgba(220,245,225,.75)" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="150" y1="381" x2="150" y2="396" stroke="rgba(220,245,225,.75)" stroke-width="1.8" stroke-linecap="round"/>
+      </g>
+    </svg>
+    </div>
+    </div><!-- /pitch-wrap -->
+
+    <div id="currentDrawPanel" style="display:none;margin-top:12px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel)">
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Current Draw</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="drawNatBadge" style="padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700"></span>
+        <span id="drawYearBadge" style="padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(255,255,255,.06);color:var(--ink)"></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT MAIN -->
+  <main class="main">
+    <div class="eyebrow" id="eyebrow">Spin for a squad</div>
+    <div class="headline" id="headline">15 positions left to fill</div>
+
+    <div class="stage-wrap" id="stage"><!-- spin / pick injected --></div>
+
+    <button class="cta" id="champBtn" disabled>Complete your squad to enter the Championship</button>
+
+    <div class="ratings" id="ratings" style="margin-top:24px">
+      <div class="ov-row">
+        <div class="ov-lbl">Overall</div>
+        <div class="ov-num" id="ovNum">—</div>
+      </div>
+      <div class="unit-list" id="unitList"></div>
+    </div>
+
+    <footer>
+      An independent, fan-made game, not affiliated with, endorsed by, or associated with any rugby union,
+      championship, governing body, or ratings provider. Player names and seasons are used for descriptive,
+      editorial purposes only; no official logos, crests, or branding are used. Ratings are subjective.
+      Inspired by 38-0.app.
+    </footer>
+  </main>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalContent"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ DATA ============ */
+
+const POSITIONS = [
+  { id: "LP", name: "Loosehead Prop",  num: 1,  group: "front" },
+  { id: "HK", name: "Hooker",          num: 2,  group: "front" },
+  { id: "TP", name: "Tighthead Prop",  num: 3,  group: "front" },
+  { id: "SR1",name: "Second Row",      num: 4,  group: "lock", pos:"SR" },
+  { id: "SR2",name: "Second Row",      num: 5,  group: "lock", pos:"SR" },
+  { id: "FL1",name: "Blindside Flanker",num: 6, group: "loose", pos:"FL" },
+  { id: "FL2",name: "Openside Flanker", num: 7, group: "loose", pos:"FL" },
+  { id: "N8", name: "Number 8",        num: 8,  group: "loose" },
+  { id: "SH", name: "Scrum Half",      num: 9,  group: "half" },
+  { id: "FH", name: "Fly Half",        num: 10, group: "half" },
+  { id: "WG1",name: "Left Wing",       num: 11, group: "back", pos:"WG" },
+  { id: "CE1",name: "Inside Centre",   num: 12, group: "back", pos:"CE" },
+  { id: "CE2",name: "Outside Centre",  num: 13, group: "back", pos:"CE" },
+  { id: "WG2",name: "Right Wing",      num: 14, group: "back", pos:"WG" },
+  { id: "FB", name: "Fullback",        num: 15, group: "back" },
+];
+
+const POS_ELIGIBLE = {
+  LP: ["LP","TP"], HK: ["HK"], TP: ["LP","TP"],
+  SR1:["SR"], SR2:["SR"],
+  FL1:["FL"], FL2:["FL"], N8:["N8","FL"],
+  SH: ["SH"], FH: ["FH"],
+  WG1:["WG"], WG2:["WG"],
+  CE1:["CE"], CE2:["CE"],
+  FB: ["FB"],
+};
+
+const BENCH = [
+  { id:"B1", name:"Prop",        eligible:["LP","TP"] },
+  { id:"B2", name:"Prop",        eligible:["LP","TP"] },
+  { id:"B3", name:"Hooker",      eligible:["HK"] },
+  { id:"B4", name:"Lock/Flanker",eligible:["SR","FL","N8"] },
+  { id:"B5", name:"Scrum Half",  eligible:["SH"] },
+  { id:"B6", name:"Fly Half",    eligible:["FH"] },
+  { id:"B7", name:"Wing",        eligible:["WG"] },
+  { id:"B8", name:"Back",        eligible:["CE","FB","WG"] },
+];
+
+function p(name, nat, pos, year, rating){ return {name, nat, pos, year, rating}; }
+
+const PLAYERS = [
+  // ============== LOOSEHEAD PROPS ==============
+  p("Mako Vunipola","ENG","LP",2016,90), p("Mako Vunipola","ENG","LP",2017,89),
+  p("Mako Vunipola","ENG","LP",2019,90), p("Ellis Genge","ENG","LP",2022,89),
+  p("Ellis Genge","ENG","LP",2023,90), p("Joe Marler","ENG","LP",2016,84),
+  p("Cian Healy","IRE","LP",2018,86), p("Cian Healy","IRE","LP",2014,84),
+  p("Andrew Porter","IRE","LP",2022,90), p("Andrew Porter","IRE","LP",2023,91),
+  p("Andrew Porter","IRE","LP",2024,90), p("Jack McGrath","IRE","LP",2015,82),
+  p("Rob Evans","WAL","LP",2017,80), p("Wyn Jones","WAL","LP",2021,82),
+  p("Gethin Jenkins","WAL","LP",2014,83), p("Nicky Smith","WAL","LP",2019,76),
+  p("Allan Dell","SCO","LP",2017,75), p("Gordon Reid","SCO","LP",2016,73),
+  p("Pierre Schoeman","SCO","LP",2022,82), p("Pierre Schoeman","SCO","LP",2023,83),
+  p("Rory Sutherland","SCO","LP",2020,81),
+
+  // ============== HOOKERS ==============
+  p("Dylan Hartley","ENG","HK",2016,85), p("Dylan Hartley","ENG","HK",2017,84),
+  p("Jamie George","ENG","HK",2019,87), p("Jamie George","ENG","HK",2023,86),
+  p("Luke Cowan-Dickie","ENG","HK",2021,84),
+  p("Rory Best","IRE","HK",2018,88), p("Rory Best","IRE","HK",2015,85),
+  p("Rónan Kelleher","IRE","HK",2023,86), p("Dan Sheehan","IRE","HK",2023,90),
+  p("Dan Sheehan","IRE","HK",2024,89),
+  p("Ken Owens","WAL","HK",2019,84), p("Ken Owens","WAL","HK",2021,85),
+  p("Scott Baldwin","WAL","HK",2016,74), p("Richard Hibbard","WAL","HK",2014,80),
+  p("Ross Ford","SCO","HK",2016,72), p("Fraser Brown","SCO","HK",2018,76),
+  p("George Turner","SCO","HK",2022,78), p("Stuart McInally","SCO","HK",2019,75),
+
+  // ============== TIGHTHEAD PROPS ==============
+  p("Dan Cole","ENG","TP",2016,83), p("Kyle Sinckler","ENG","TP",2019,89),
+  p("Kyle Sinckler","ENG","TP",2020,88), p("Will Stuart","ENG","TP",2023,82),
+  p("Tadhg Furlong","IRE","TP",2017,90), p("Tadhg Furlong","IRE","TP",2018,93),
+  p("Tadhg Furlong","IRE","TP",2019,92), p("Tadhg Furlong","IRE","TP",2023,90),
+  p("Mike Ross","IRE","TP",2014,80),
+  p("Samson Lee","WAL","TP",2015,77), p("Tomas Francis","WAL","TP",2019,79),
+  p("Tomas Francis","WAL","TP",2021,80), p("Adam Jones","WAL","TP",2014,82),
+  p("WP Nel","SCO","TP",2016,80), p("Zander Fagerson","SCO","TP",2021,85),
+  p("Zander Fagerson","SCO","TP",2022,86), p("Zander Fagerson","SCO","TP",2023,85),
+
+  // ============== SECOND ROWS ==============
+  p("Maro Itoje","ENG","SR",2017,92), p("Maro Itoje","ENG","SR",2019,93),
+  p("Maro Itoje","ENG","SR",2020,92), p("Maro Itoje","ENG","SR",2023,91),
+  p("Courtney Lawes","ENG","SR",2019,86), p("George Kruis","ENG","SR",2016,84),
+  p("Joe Launchbury","ENG","SR",2017,83),
+  p("James Ryan","IRE","SR",2018,90), p("James Ryan","IRE","SR",2019,89),
+  p("Tadhg Beirne","IRE","SR",2021,88), p("Tadhg Beirne","IRE","SR",2023,89),
+  p("Iain Henderson","IRE","SR",2017,84), p("Devin Toner","IRE","SR",2015,80),
+  p("Paul O'Connell","IRE","SR",2014,90),
+  p("Alun Wyn Jones","WAL","SR",2014,90), p("Alun Wyn Jones","WAL","SR",2019,91),
+  p("Alun Wyn Jones","WAL","SR",2021,89), p("Jake Ball","WAL","SR",2020,74),
+  p("Adam Beard","WAL","SR",2023,79),
+  p("Jonny Gray","SCO","SR",2016,84), p("Jonny Gray","SCO","SR",2018,83),
+  p("Richie Gray","SCO","SR",2014,82), p("Grant Gilchrist","SCO","SR",2022,80),
+  p("Scott Cummings","SCO","SR",2021,77),
+
+  // ============== FLANKERS ==============
+  p("Sam Warburton","WAL","FL",2014,89), p("Sam Warburton","WAL","FL",2016,88),
+  p("Justin Tipuric","WAL","FL",2019,87), p("Justin Tipuric","WAL","FL",2021,86),
+  p("Dan Lydiate","WAL","FL",2014,82), p("Taulupe Faletau","WAL","FL",2016,86),
+  p("Tom Curry","ENG","FL",2019,89), p("Tom Curry","ENG","FL",2020,88),
+  p("Sam Underhill","ENG","FL",2020,85), p("James Haskell","ENG","FL",2016,80),
+  p("Chris Robshaw","ENG","FL",2016,82), p("Lewis Ludlam","ENG","FL",2023,78),
+  p("Peter O'Mahony","IRE","FL",2018,85), p("Peter O'Mahony","IRE","FL",2023,84),
+  p("Josh van der Flier","IRE","FL",2022,90), p("Josh van der Flier","IRE","FL",2023,91),
+  p("Sean O'Brien","IRE","FL",2014,86), p("CJ Stander","IRE","FL",2018,85),
+  p("Hamish Watson","SCO","FL",2018,84), p("Hamish Watson","SCO","FL",2021,87),
+  p("John Barclay","SCO","FL",2017,82), p("Jamie Ritchie","SCO","FL",2022,84),
+  p("Rory Darge","SCO","FL",2023,82),
+
+  // ============== NUMBER 8s ==============
+  p("Billy Vunipola","ENG","N8",2016,89), p("Billy Vunipola","ENG","N8",2019,88),
+  p("Billy Vunipola","ENG","N8",2017,87),
+  p("Jamie Heaslip","IRE","N8",2014,86), p("Jamie Heaslip","IRE","N8",2016,85),
+  p("Caelan Doris","IRE","N8",2023,89), p("Caelan Doris","IRE","N8",2024,89),
+  p("Jack Conan","IRE","N8",2021,84),
+  p("Taulupe Faletau","WAL","N8",2019,87), p("Taulupe Faletau","WAL","N8",2021,86),
+  p("Taulupe Faletau","WAL","N8",2023,84),
+  p("David Denton","SCO","N8",2015,76), p("Ryan Wilson","SCO","N8",2018,78),
+  p("Matt Fagerson","SCO","N8",2022,79), p("Josh Strauss","SCO","N8",2016,75),
+
+  // ============== SCRUM HALVES ==============
+  p("Ben Youngs","ENG","SH",2016,84), p("Ben Youngs","ENG","SH",2019,85),
+  p("Danny Care","ENG","SH",2018,82), p("Alex Mitchell","ENG","SH",2024,81),
+  p("Conor Murray","IRE","SH",2016,89), p("Conor Murray","IRE","SH",2018,90),
+  p("Conor Murray","IRE","SH",2015,88), p("Jamison Gibson-Park","IRE","SH",2023,89),
+  p("Jamison Gibson-Park","IRE","SH",2024,90),
+  p("Rhys Webb","WAL","SH",2015,83), p("Gareth Davies","WAL","SH",2019,82),
+  p("Tomos Williams","WAL","SH",2021,80), p("Mike Phillips","WAL","SH",2014,82),
+  p("Greig Laidlaw","SCO","SH",2016,82), p("Greig Laidlaw","SCO","SH",2018,81),
+  p("Ali Price","SCO","SH",2021,83), p("Ben White","SCO","SH",2023,79),
+
+  // ============== FLY HALVES ==============
+  p("Owen Farrell","ENG","FH",2016,88), p("Owen Farrell","ENG","FH",2019,89),
+  p("Owen Farrell","ENG","FH",2017,90), p("George Ford","ENG","FH",2017,84),
+  p("George Ford","ENG","FH",2020,83),
+  p("Johnny Sexton","IRE","FH",2018,94), p("Johnny Sexton","IRE","FH",2019,92),
+  p("Johnny Sexton","IRE","FH",2014,90), p("Johnny Sexton","IRE","FH",2023,91),
+  p("Jack Crowley","IRE","FH",2024,82),
+  p("Dan Biggar","WAL","FH",2019,86), p("Dan Biggar","WAL","FH",2021,85),
+  p("Dan Biggar","WAL","FH",2015,84), p("Rhys Priestland","WAL","FH",2014,78),
+  p("Finn Russell","SCO","FH",2018,87), p("Finn Russell","SCO","FH",2021,88),
+  p("Finn Russell","SCO","FH",2022,89), p("Finn Russell","SCO","FH",2024,88),
+
+  // ============== WINGS ==============
+  p("Anthony Watson","ENG","WG",2017,85), p("Jonny May","ENG","WG",2019,84),
+  p("Jonny May","ENG","WG",2020,85), p("Jack Nowell","ENG","WG",2018,82),
+  p("Freddie Steward","ENG","WG",2022,80),
+  p("Keith Earls","IRE","WG",2018,84), p("Jacob Stockdale","IRE","WG",2018,84),
+  p("James Lowe","IRE","WG",2023,87), p("Mack Hansen","IRE","WG",2023,85),
+  p("Mack Hansen","IRE","WG",2024,84), p("Tommy Bowe","IRE","WG",2014,82),
+  p("George North","WAL","WG",2014,87), p("George North","WAL","WG",2019,85),
+  p("Liam Williams","WAL","WG",2019,86), p("Josh Adams","WAL","WG",2019,85),
+  p("Josh Adams","WAL","WG",2021,84), p("Alex Cuthbert","WAL","WG",2014,79),
+  p("Tommy Seymour","SCO","WG",2017,80), p("Sean Maitland","SCO","WG",2018,78),
+  p("Darcy Graham","SCO","WG",2022,83), p("Duhan van der Merwe","SCO","WG",2021,85),
+  p("Duhan van der Merwe","SCO","WG",2024,87),
+
+  // ============== CENTRES ==============
+  p("Manu Tuilagi","ENG","CE",2019,87), p("Manu Tuilagi","ENG","CE",2020,85),
+  p("Henry Slade","ENG","CE",2019,82), p("Owen Farrell","ENG","CE",2018,86),
+  p("Jonathan Joseph","ENG","CE",2017,82), p("Brad Barritt","ENG","CE",2016,78),
+  p("Robbie Henshaw","IRE","CE",2018,87), p("Robbie Henshaw","IRE","CE",2023,86),
+  p("Garry Ringrose","IRE","CE",2022,86), p("Garry Ringrose","IRE","CE",2024,87),
+  p("Bundee Aki","IRE","CE",2023,87), p("Bundee Aki","IRE","CE",2024,86),
+  p("Brian O'Driscoll","IRE","CE",2014,89),
+  p("Jonathan Davies","WAL","CE",2016,86), p("Jonathan Davies","WAL","CE",2019,87),
+  p("Jamie Roberts","WAL","CE",2014,85), p("Hadleigh Parkes","WAL","CE",2019,80),
+  p("Nick Tompkins","WAL","CE",2020,77),
+  p("Huw Jones","SCO","WG",2018,81), p("Huw Jones","SCO","CE",2023,84),
+  p("Alex Dunbar","SCO","CE",2016,76), p("Sam Johnson","SCO","CE",2019,78),
+  p("Chris Harris","SCO","CE",2021,80),
+
+  // ============== FULLBACKS ==============
+  p("Mike Brown","ENG","FB",2014,84), p("Mike Brown","ENG","FB",2016,82),
+  p("Elliot Daly","ENG","FB",2019,82), p("Freddie Steward","ENG","FB",2023,84),
+  p("Rob Kearney","IRE","FB",2014,84), p("Rob Kearney","IRE","FB",2018,82),
+  p("Hugo Keenan","IRE","FB",2023,87), p("Hugo Keenan","IRE","FB",2024,86),
+  p("Leigh Halfpenny","WAL","FB",2014,89), p("Leigh Halfpenny","WAL","FB",2015,86),
+  p("Liam Williams","WAL","FB",2021,85), p("Liam Williams","WAL","FB",2023,83),
+  p("Stuart Hogg","SCO","FB",2016,86), p("Stuart Hogg","SCO","FB",2017,88),
+  p("Stuart Hogg","SCO","FB",2018,87), p("Stuart Hogg","SCO","FB",2021,85),
+  p("Blair Kinghorn","SCO","FB",2022,82),
+];
+
+
+
+const PLAYERS_FRIT = [
+  p("Cyril Baille","FRA","LP",2022,89), p("Cyril Baille","FRA","LP",2023,88),
+  p("Jefferson Poirot","FRA","LP",2019,80), p("Eddy Ben Arous","FRA","LP",2016,74),
+  p("Jean-Baptiste Gros","FRA","LP",2024,82),
+  p("Guilhem Guirado","FRA","HK",2016,84), p("Guilhem Guirado","FRA","HK",2018,82),
+  p("Julien Marchand","FRA","HK",2022,86), p("Julien Marchand","FRA","HK",2023,85),
+  p("Peato Mauvaka","FRA","HK",2024,83),
+  p("Rabah Slimani","FRA","TP",2016,80), p("Uini Atonio","FRA","TP",2022,85),
+  p("Uini Atonio","FRA","TP",2023,86), p("Demba Bamba","FRA","TP",2020,78),
+  p("Paul Willemse","FRA","SR",2022,83), p("Cameron Woki","FRA","SR",2022,82),
+  p("Romain Taofifenua","FRA","SR",2019,78), p("Sebastien Vahaamahina","FRA","SR",2018,80),
+  p("Yoann Maestri","FRA","SR",2016,77), p("Thibaud Flament","FRA","SR",2024,82),
+  p("Thierry Dusautoir","FRA","FL",2014,88), p("Wenceslas Lauret","FRA","FL",2018,78),
+  p("Charles Ollivon","FRA","FL",2020,87), p("Charles Ollivon","FRA","FL",2024,85),
+  p("Anthony Jelonch","FRA","FL",2022,86), p("François Cros","FRA","FL",2023,84),
+  p("Louis Picamoles","FRA","N8",2016,84), p("Louis Picamoles","FRA","N8",2018,82),
+  p("Grégory Alldritt","FRA","N8",2022,90), p("Grégory Alldritt","FRA","N8",2023,89),
+  p("Antoine Dupont","FRA","SH",2020,92), p("Antoine Dupont","FRA","SH",2022,96),
+  p("Antoine Dupont","FRA","SH",2023,95), p("Maxime Machenaud","FRA","SH",2016,80),
+  p("Morgan Parra","FRA","SH",2014,81), p("Baptiste Serin","FRA","SH",2018,79),
+  p("Romain Ntamack","FRA","FH",2022,89), p("Romain Ntamack","FRA","FH",2023,88),
+  p("Camille Lopez","FRA","FH",2018,80), p("Matthieu Jalibert","FRA","FH",2024,86),
+  p("Frédéric Michalak","FRA","FH",2014,79),
+  p("Yoann Huget","FRA","WG",2014,81), p("Virimi Vakatawa","FRA","WG",2018,83),
+  p("Damian Penaud","FRA","WG",2022,89), p("Damian Penaud","FRA","WG",2023,90),
+  p("Gaël Fickou","FRA","WG",2016,80), p("Teddy Thomas","FRA","WG",2018,81),
+  p("Louis Bielle-Biarrey","FRA","WG",2024,85),
+  p("Gaël Fickou","FRA","CE",2022,86), p("Gaël Fickou","FRA","CE",2023,85),
+  p("Wesley Fofana","FRA","CE",2014,86), p("Mathieu Bastareaud","FRA","CE",2018,80),
+  p("Jonathan Danty","FRA","CE",2023,83), p("Virimi Vakatawa","FRA","CE",2020,84),
+  p("Brice Dulin","FRA","FB",2014,80), p("Brice Dulin","FRA","FB",2021,82),
+  p("Thomas Ramos","FRA","FB",2023,85), p("Thomas Ramos","FRA","FB",2024,84),
+  p("Melvyn Jaminet","FRA","FB",2022,80), p("Scott Spedding","FRA","FB",2016,75),
+
+  p("Andrea Lovotti","ITA","LP",2018,72), p("Danilo Fischetti","ITA","LP",2022,73),
+  p("Andrea Lovotti","ITA","LP",2019,71),
+  p("Leonardo Ghiraldini","ITA","HK",2016,76), p("Luca Bigi","ITA","HK",2020,70),
+  p("Gianmarco Lucchesi","ITA","HK",2024,73),
+  p("Martin Castrogiovanni","ITA","TP",2014,80), p("Simone Ferrari","ITA","TP",2022,74),
+  p("Pietro Ceccarelli","ITA","TP",2023,71),
+  p("Sergio Parisse","ITA","N8",2014,88), // listed under N8 below; keep SR depth:
+  p("Marco Fuser","ITA","SR",2016,72), p("Alessandro Zanni","ITA","SR",2014,73),
+  p("Niccolò Cannone","ITA","SR",2022,76), p("Federico Ruzza","ITA","SR",2021,74),
+  p("Sebastian Negri","ITA","FL",2022,79), p("Michele Lamaro","ITA","FL",2023,80),
+  p("Braam Steyn","ITA","FL",2018,76), p("Maxime Mbandà","ITA","FL",2019,75),
+  p("Sergio Parisse","ITA","N8",2016,85), p("Sergio Parisse","ITA","N8",2018,83),
+  p("Lorenzo Cannone","ITA","N8",2024,77),
+  p("Tito Tebaldi","ITA","SH",2016,70), p("Stephen Varney","ITA","SH",2022,74),
+  p("Alessandro Garbisi","ITA","SH",2024,73),
+  p("Tommaso Allan","ITA","FH",2018,75), p("Carlo Canna","ITA","FH",2016,72),
+  p("Paolo Garbisi","ITA","FH",2022,80), p("Paolo Garbisi","ITA","FH",2024,82),
+  p("Leonardo Sarto","ITA","WG",2016,72), p("Mattia Bellini","ITA","WG",2018,71),
+  p("Monty Ioane","ITA","WG",2022,77), p("Ange Capuozzo","ITA","WG",2023,84),
+  p("Tommaso Benvenuti","ITA","WG",2014,73),
+  p("Michele Campagnaro","ITA","CE",2014,76), p("Luca Morisi","ITA","CE",2018,74),
+  p("Juan Ignacio Brex","ITA","CE",2023,79), p("Tommaso Menoncello","ITA","CE",2024,82),
+  p("Matteo Minozzi","ITA","FB",2018,79), p("Jacopo Trulla","ITA","FB",2022,73),
+  p("Ange Capuozzo","ITA","FB",2024,85), p("Luigi McKinley","ITA","FB",2016,70),
+];
+
+PLAYERS_FRIT.forEach(pl=> PLAYERS.push(pl));
+
+
+const PLAYERS_EXP = [
+  p("Jason Leonard","ENG","LP",1991,86), p("Jason Leonard","ENG","LP",1995,87),
+  p("Jason Leonard","ENG","LP",2000,85), p("Jason Leonard","ENG","LP",2003,84),
+  p("Graham Rowntree","ENG","LP",1999,78), p("Graham Rowntree","ENG","LP",2002,79),
+  p("Trevor Woodman","ENG","LP",2003,77), p("Andrew Sheridan","ENG","LP",2006,82),
+  p("Tim Payne","ENG","LP",2008,70), p("Alex Corbisiero","ENG","LP",2011,79),
+  p("Brian Moore","ENG","HK",1991,85), p("Brian Moore","ENG","HK",1992,84),
+  p("Mark Regan","ENG","HK",1996,74), p("Phil Greening","ENG","HK",2000,72),
+  p("Steve Thompson","ENG","HK",2003,84), p("Steve Thompson","ENG","HK",2002,82),
+  p("Mark Regan","ENG","HK",2004,73), p("Lee Mears","ENG","HK",2008,69),
+  p("Dylan Hartley","ENG","HK",2012,82),
+  p("Jeff Probyn","ENG","TP",1991,80), p("Victor Ubogu","ENG","TP",1995,75),
+  p("Darren Garforth","ENG","TP",1999,76), p("Phil Vickery","ENG","TP",2003,85),
+  p("Phil Vickery","ENG","TP",2000,82), p("Julian White","ENG","TP",2005,78),
+  p("Matt Stevens","ENG","TP",2007,77), p("Dan Cole","ENG","TP",2010,82),
+  p("Wade Dooley","ENG","SR",1991,82), p("Martin Bayfield","ENG","SR",1993,80),
+  p("Martin Johnson","ENG","SR",1995,89), p("Martin Johnson","ENG","SR",2000,90),
+  p("Martin Johnson","ENG","SR",2003,92), p("Danny Grewcock","ENG","SR",2002,78),
+  p("Ben Kay","ENG","SR",2003,82), p("Ben Kay","ENG","SR",2005,79),
+  p("Steve Borthwick","ENG","SR",2008,75), p("Simon Shaw","ENG","SR",2004,78),
+  p("Tom Palmer","ENG","SR",2010,74), p("Geoff Parling","ENG","SR",2012,79),
+  p("Peter Winterbottom","ENG","FL",1991,83), p("Mickey Skinner","ENG","FL",1991,77),
+  p("Tim Rodber","ENG","FL",1994,76), p("Neil Back","ENG","FL",1999,86),
+  p("Neil Back","ENG","FL",2003,87), p("Richard Hill","ENG","FL",2000,85),
+  p("Richard Hill","ENG","FL",2003,86), p("Lewis Moody","ENG","FL",2005,80),
+  p("Joe Worsley","ENG","FL",2008,74), p("Tom Croft","ENG","FL",2009,79),
+  p("James Haskell","ENG","FL",2011,77),
+  p("Dean Richards","ENG","N8",1991,84), p("Dean Richards","ENG","N8",1994,82),
+  p("Lawrence Dallaglio","ENG","N8",1998,86), p("Lawrence Dallaglio","ENG","N8",2000,87),
+  p("Lawrence Dallaglio","ENG","N8",2003,86), p("Nick Easter","ENG","N8",2007,78),
+  p("Nick Easter","ENG","N8",2011,77), p("Ben Morgan","ENG","N8",2013,74),
+  p("Richard Hill","ENG","SH",1990,72), p("Dewi Morris","ENG","SH",1992,76),
+  p("Kyran Bracken","ENG","SH",1996,75), p("Matt Dawson","ENG","SH",2000,84),
+  p("Matt Dawson","ENG","SH",2003,85), p("Andy Gomarsall","ENG","SH",2007,72),
+  p("Harry Ellis","ENG","SH",2005,75), p("Danny Care","ENG","SH",2010,79),
+  p("Ben Youngs","ENG","SH",2011,82),
+  p("Rob Andrew","ENG","FH",1991,82), p("Rob Andrew","ENG","FH",1995,83),
+  p("Paul Grayson","ENG","FH",1996,76), p("Jonny Wilkinson","ENG","FH",2000,89),
+  p("Jonny Wilkinson","ENG","FH",2001,90), p("Jonny Wilkinson","ENG","FH",2003,92),
+  p("Jonny Wilkinson","ENG","FH",2011,84), p("Charlie Hodgson","ENG","FH",2005,78),
+  p("Toby Flood","ENG","FH",2011,79), p("Andy Goode","ENG","FH",2009,70),
+  p("Rory Underwood","ENG","WG",1991,84), p("Rory Underwood","ENG","WG",1993,82),
+  p("Tony Underwood","ENG","WG",1995,74), p("Dan Luger","ENG","WG",2001,77),
+  p("Ben Cohen","ENG","WG",2003,82), p("Jason Robinson","ENG","WG",2003,86),
+  p("Mark Cueto","ENG","WG",2005,78), p("Josh Lewsey","ENG","WG",2005,79),
+  p("Chris Ashton","ENG","WG",2011,82), p("Ugo Monye","ENG","WG",2009,72),
+  p("David Strettle","ENG","WG",2012,71),
+  p("Will Carling","ENG","CE",1991,84), p("Will Carling","ENG","CE",1995,82),
+  p("Jeremy Guscott","ENG","CE",1991,85), p("Jeremy Guscott","ENG","CE",1995,84),
+  p("Phil de Glanville","ENG","CE",1997,73), p("Mike Tindall","ENG","CE",2003,80),
+  p("Will Greenwood","ENG","CE",2003,84), p("Will Greenwood","ENG","CE",2001,83),
+  p("Mathew Tait","ENG","CE",2007,73), p("Riki Flutey","ENG","CE",2009,75),
+  p("Brian Barritt","ENG","CE",2012,74),
+  p("Jonathan Webb","ENG","FB",1992,78), p("Mike Catt","ENG","FB",1997,77),
+  p("Matt Perry","ENG","FB",1998,76), p("Iain Balshaw","ENG","FB",2001,77),
+  p("Jason Robinson","ENG","FB",2004,85), p("Josh Lewsey","ENG","FB",2003,80),
+  p("Olly Morgan","ENG","FB",2007,67), p("Delon Armitage","ENG","FB",2009,74),
+  p("Ben Foden","ENG","FB",2011,78),
+
+  p("Nick Popplewell","IRE","LP",1991,77), p("Nick Popplewell","IRE","LP",1994,78),
+  p("Peter Clohessy","IRE","LP",1996,76), p("Reggie Corrigan","IRE","LP",2002,72),
+  p("Marcus Horan","IRE","LP",2004,77), p("Marcus Horan","IRE","LP",2007,76),
+  p("Cian Healy","IRE","LP",2010,82), p("Tom Court","IRE","LP",2011,67),
+  p("Terry Kingston","IRE","HK",1991,70), p("Keith Wood","IRE","HK",1996,86),
+  p("Keith Wood","IRE","HK",2000,87), p("Keith Wood","IRE","HK",2003,85),
+  p("Shane Byrne","IRE","HK",2004,73), p("Jerry Flannery","IRE","HK",2007,78),
+  p("Rory Best","IRE","HK",2010,82), p("Sean Cronin","IRE","HK",2012,72),
+  p("Des Fitzgerald","IRE","TP",1991,72), p("Paul Wallace","IRE","TP",1997,76),
+  p("Peter Clohessy","IRE","TP",2000,75), p("John Hayes","IRE","TP",2003,79),
+  p("John Hayes","IRE","TP",2007,78), p("John Hayes","IRE","TP",2009,76),
+  p("Mike Ross","IRE","TP",2011,78),
+  p("Donal Lenihan","IRE","SR",1991,76), p("Neil Francis","IRE","SR",1993,73),
+  p("Paddy Johns","IRE","SR",1997,72), p("Malcolm O'Kelly","IRE","SR",2000,80),
+  p("Malcolm O'Kelly","IRE","SR",2004,79), p("Paul O'Connell","IRE","SR",2006,89),
+  p("Paul O'Connell","IRE","SR",2009,90), p("Donncha O'Callaghan","IRE","SR",2009,79),
+  p("Mick Galwey","IRE","SR",2001,73), p("Devin Toner","IRE","SR",2013,76),
+  p("Philip Matthews","IRE","FL",1991,74), p("Denis McBride","IRE","FL",1994,71),
+  p("David Wallace","IRE","FL",2003,80), p("David Wallace","IRE","FL",2009,82),
+  p("Keith Gleeson","IRE","FL",2004,74), p("Simon Easterby","IRE","FL",2005,77),
+  p("Stephen Ferris","IRE","FL",2009,82), p("Sean O'Brien","IRE","FL",2011,84),
+  p("Peter O'Mahony","IRE","FL",2013,80),
+  p("Brian Robinson","IRE","N8",1991,70), p("Victor Costello","IRE","N8",1998,74),
+  p("Anthony Foley","IRE","N8",2000,80), p("Anthony Foley","IRE","N8",2003,79),
+  p("Jamie Heaslip","IRE","N8",2009,85), p("Jamie Heaslip","IRE","N8",2011,84),
+  p("Denis Leamy","IRE","N8",2007,75),
+  p("Rob Saunders","IRE","SH",1991,69), p("Michael Bradley","IRE","SH",1993,70),
+  p("Niall Hogan","IRE","SH",1995,68), p("Peter Stringer","IRE","SH",2003,82),
+  p("Peter Stringer","IRE","SH",2006,80), p("Eoin Reddan","IRE","SH",2008,75),
+  p("Tomás O'Leary","IRE","SH",2009,74), p("Conor Murray","IRE","SH",2013,84),
+  p("Ralph Keyes","IRE","FH",1991,71), p("Eric Elwood","IRE","FH",1993,75),
+  p("David Humphreys","IRE","FH",1999,79), p("David Humphreys","IRE","FH",2003,80),
+  p("Ronan O'Gara","IRE","FH",2003,86), p("Ronan O'Gara","IRE","FH",2007,88),
+  p("Ronan O'Gara","IRE","FH",2009,89), p("Jonathan Sexton","IRE","FH",2011,87),
+  p("Simon Geoghegan","IRE","WG",1991,78), p("Simon Geoghegan","IRE","WG",1994,77),
+  p("Denis Hickie","IRE","WG",2000,79), p("Denis Hickie","IRE","WG",2003,80),
+  p("Shane Horgan","IRE","WG",2004,80), p("Shane Horgan","IRE","WG",2007,81),
+  p("Tommy Bowe","IRE","WG",2009,84), p("Andrew Trimble","IRE","WG",2011,75),
+  p("Girvan Dempsey","IRE","WG",2002,74),
+  p("Brendan Mullin","IRE","CE",1991,75), p("Maurice Field","IRE","CE",1994,69),
+  p("Kevin Maggs","IRE","CE",2000,73), p("Brian O'Driscoll","IRE","CE",2002,90),
+  p("Brian O'Driscoll","IRE","CE",2006,91), p("Brian O'Driscoll","IRE","CE",2009,90),
+  p("Gordon D'Arcy","IRE","CE",2004,84), p("Gordon D'Arcy","IRE","CE",2007,80),
+  p("Keith Earls","IRE","CE",2011,76),
+  p("Jim Staples","IRE","FB",1991,70), p("Conor O'Shea","IRE","FB",1996,75),
+  p("Girvan Dempsey","IRE","FB",2004,76), p("Geordan Murphy","IRE","FB",2005,78),
+  p("Rob Kearney","IRE","FB",2009,83), p("Rob Kearney","IRE","FB",2011,82),
+  p("Luke Fitzgerald","IRE","FB",2009,74),
+
+  p("Mike Griffiths","WAL","LP",1991,70), p("Ricky Evans","WAL","LP",1994,68),
+  p("Christian Loader","WAL","LP",1996,66), p("Iestyn Thomas","WAL","LP",2002,71),
+  p("Gethin Jenkins","WAL","LP",2005,84), p("Gethin Jenkins","WAL","LP",2008,85),
+  p("Duncan Jones","WAL","LP",2005,75), p("Paul James","WAL","LP",2011,72),
+  p("Garin Jenkins","WAL","HK",1995,71), p("Jonathan Humphreys","WAL","HK",1996,72),
+  p("Robin McBryde","WAL","HK",2001,71), p("Mefin Davies","WAL","HK",2005,68),
+  p("Matthew Rees","WAL","HK",2008,79), p("Matthew Rees","WAL","HK",2012,78),
+  p("Huw Bennett","WAL","HK",2009,74),
+  p("Laurance Delaney","WAL","TP",1991,67), p("John Davies","WAL","TP",1995,70),
+  p("Dai Young","WAL","TP",2000,77), p("Dai Young","WAL","TP",2001,76),
+  p("Adam Jones","WAL","TP",2005,82), p("Adam Jones","WAL","TP",2008,85),
+  p("Adam Jones","WAL","TP",2012,84), p("Chris Horsman","WAL","TP",2007,68),
+  p("Phil Davies","WAL","SR",1991,71), p("Gareth Llewellyn","WAL","SR",1994,73),
+  p("Gareth Llewellyn","WAL","SR",2002,71), p("Craig Quinnell","WAL","SR",1999,74),
+  p("Robert Sidoli","WAL","SR",2005,72), p("Ian Gough","WAL","SR",2008,73),
+  p("Alun Wyn Jones","WAL","SR",2009,86), p("Alun Wyn Jones","WAL","SR",2012,89),
+  p("Luke Charteris","WAL","SR",2011,76), p("Bradley Davies","WAL","SR",2012,74),
+  p("Emyr Lewis","WAL","FL",1994,71), p("Gwyn Jones","WAL","FL",1997,72),
+  p("Colin Charvis","WAL","FL",2002,79), p("Colin Charvis","WAL","FL",2004,78),
+  p("Martyn Williams","WAL","FL",2005,85), p("Martyn Williams","WAL","FL",2008,84),
+  p("Dafydd Jones","WAL","FL",2003,70), p("Sam Warburton","WAL","FL",2011,86),
+  p("Dan Lydiate","WAL","FL",2012,84),
+  p("Emyr Lewis","WAL","N8",1992,72), p("Scott Quinnell","WAL","N8",1999,82),
+  p("Scott Quinnell","WAL","N8",2001,81), p("Ryan Jones","WAL","N8",2005,80),
+  p("Ryan Jones","WAL","N8",2008,81), p("Andy Powell","WAL","N8",2009,70),
+  p("Toby Faletau","WAL","N8",2012,83),
+  p("Robert Jones","WAL","SH",1991,76), p("Robert Howley","WAL","SH",1997,82),
+  p("Robert Howley","WAL","SH",2002,81), p("Rupert Moon","WAL","SH",1994,68),
+  p("Dwayne Peel","WAL","SH",2005,80), p("Dwayne Peel","WAL","SH",2007,78),
+  p("Mike Phillips","WAL","SH",2008,83), p("Mike Phillips","WAL","SH",2012,84),
+  p("Gareth Cooper","WAL","SH",2004,69),
+  p("Neil Jenkins","WAL","FH",1995,80), p("Neil Jenkins","WAL","FH",1999,82),
+  p("Neil Jenkins","WAL","FH",2001,81), p("Arwel Thomas","WAL","FH",1996,72),
+  p("Stephen Jones","WAL","FH",2005,83), p("Stephen Jones","WAL","FH",2008,82),
+  p("James Hook","WAL","FH",2007,79), p("Rhys Priestland","WAL","FH",2012,77),
+  p("Dan Biggar","WAL","FH",2013,80),
+  p("Ieuan Evans","WAL","WG",1991,82), p("Ieuan Evans","WAL","WG",1994,81),
+  p("Nigel Walker","WAL","WG",1994,75), p("Gareth Thomas","WAL","WG",2000,82),
+  p("Gareth Thomas","WAL","WG",2005,83), p("Shane Williams","WAL","WG",2005,89),
+  p("Shane Williams","WAL","WG",2008,93), p("Shane Williams","WAL","WG",2011,88),
+  p("Mark Jones","WAL","WG",2007,72), p("George North","WAL","WG",2012,85),
+  p("Alex Cuthbert","WAL","WG",2012,80),
+  p("Scott Gibbs","WAL","CE",1996,80), p("Scott Gibbs","WAL","CE",1999,82),
+  p("Allan Bateman","WAL","CE",1997,76), p("Mark Taylor","WAL","CE",2000,73),
+  p("Tom Shanklin","WAL","CE",2005,80), p("Tom Shanklin","WAL","CE",2008,79),
+  p("Gavin Henson","WAL","CE",2005,82), p("Jamie Roberts","WAL","CE",2009,85),
+  p("Jamie Roberts","WAL","CE",2012,86), p("Jonathan Davies","WAL","CE",2012,84),
+  p("Tony Clement","WAL","FB",1991,72), p("Wayne Proctor","WAL","FB",1995,70),
+  p("Shane Howarth","WAL","FB",1999,76), p("Kevin Morgan","WAL","FB",2005,74),
+  p("Gareth Thomas","WAL","FB",2003,80), p("Lee Byrne","WAL","FB",2008,81),
+  p("Lee Byrne","WAL","FB",2009,80), p("Leigh Halfpenny","WAL","FB",2012,86),
+
+  p("David Sole","SCO","LP",1990,80), p("David Sole","SCO","LP",1991,79),
+  p("Alan Watt","SCO","LP",1994,66), p("Tom Smith","SCO","LP",1997,80),
+  p("Tom Smith","SCO","LP",2000,79), p("Tom Smith","SCO","LP",2003,78),
+  p("Gavin Kerr","SCO","LP",2005,70), p("Allan Jacobsen","SCO","LP",2008,71),
+  p("Kenny Milne","SCO","HK",1990,73), p("Kenny Milne","SCO","HK",1993,72),
+  p("Gavin Bulloch","SCO","HK",1999,72), p("Gordon Bulloch","SCO","HK",2002,74),
+  p("Gordon Bulloch","SCO","HK",2004,73), p("Dougie Hall","SCO","HK",2007,68),
+  p("Ross Ford","SCO","HK",2010,72), p("Ross Ford","SCO","HK",2013,73),
+  p("Paul Burnell","SCO","TP",1990,72), p("Paul Burnell","SCO","TP",1993,71),
+  p("Mattie Stewart","SCO","TP",1999,69), p("Bruce Douglas","SCO","TP",2003,67),
+  p("Gavin Kerr","SCO","TP",2006,69), p("Euan Murray","SCO","TP",2008,79),
+  p("Euan Murray","SCO","TP",2010,78), p("Geoff Cross","SCO","TP",2012,68),
+  p("Chris Gray","SCO","SR",1990,73), p("Damian Cronin","SCO","SR",1991,72),
+  p("Doddie Weir","SCO","SR",1995,75), p("Doddie Weir","SCO","SR",1997,74),
+  p("Scott Murray","SCO","SR",2000,78), p("Scott Murray","SCO","SR",2004,77),
+  p("Stuart Grimes","SCO","SR",2002,72), p("Nathan Hines","SCO","SR",2007,76),
+  p("Jim Hamilton","SCO","SR",2010,72), p("Richie Gray","SCO","SR",2012,82),
+  p("Finlay Calder","SCO","FL",1990,80), p("John Jeffrey","SCO","FL",1990,81),
+  p("John Jeffrey","SCO","FL",1991,80), p("Rob Wainwright","SCO","FL",1995,74),
+  p("Budge Pountney","SCO","FL",2000,74), p("Jason White","SCO","FL",2006,78),
+  p("Ally Hogg","SCO","FL",2007,71), p("John Barclay","SCO","FL",2008,75),
+  p("Kelly Brown","SCO","FL",2010,76), p("Ross Rennie","SCO","FL",2012,72),
+  p("Derek White","SCO","N8",1990,76), p("Derek White","SCO","N8",1991,75),
+  p("Eric Peters","SCO","N8",1996,72), p("Simon Taylor","SCO","N8",2002,79),
+  p("Simon Taylor","SCO","N8",2006,78), p("David Denton","SCO","N8",2012,74),
+  p("Johnnie Beattie","SCO","N8",2009,73),
+  p("Gary Armstrong","SCO","SH",1990,80), p("Gary Armstrong","SCO","SH",1995,79),
+  p("Gary Armstrong","SCO","SH",1999,78), p("Bryan Redpath","SCO","SH",2000,75),
+  p("Bryan Redpath","SCO","SH",2003,74), p("Chris Cusiter","SCO","SH",2006,75),
+  p("Mike Blair","SCO","SH",2008,78), p("Mike Blair","SCO","SH",2010,77),
+  p("Greig Laidlaw","SCO","SH",2013,79),
+  p("Craig Chalmers","SCO","FH",1990,78), p("Craig Chalmers","SCO","FH",1991,77),
+  p("Gregor Townsend","SCO","FH",1995,80), p("Gregor Townsend","SCO","FH",1999,81),
+  p("Duncan Hodge","SCO","FH",2000,70), p("Dan Parks","SCO","FH",2008,74),
+  p("Dan Parks","SCO","FH",2010,75), p("Phil Godman","SCO","FH",2009,68),
+  p("Ruaridh Jackson","SCO","FH",2012,70),
+  p("Tony Stanger","SCO","WG",1990,79), p("Tony Stanger","SCO","WG",1995,76),
+  p("Iwan Tukalo","SCO","WG",1991,72), p("Kenny Logan","SCO","WG",1999,74),
+  p("Chris Paterson","SCO","WG",2000,80), p("Chris Paterson","SCO","WG",2007,81),
+  p("Sean Lamont","SCO","WG",2005,73), p("Sean Lamont","SCO","WG",2011,72),
+  p("Simon Danielli","SCO","WG",2008,68), p("Tim Visser","SCO","WG",2013,75),
+  p("Scott Hastings","SCO","CE",1990,77), p("Scott Hastings","SCO","CE",1995,75),
+  p("Sean Lineen","SCO","CE",1991,74), p("Gregor Townsend","SCO","CE",2000,79),
+  p("Alan Tait","SCO","CE",1999,76), p("Andy Henderson","SCO","CE",2004,68),
+  p("Marcus Di Rollo","SCO","CE",2005,69), p("Graeme Morrison","SCO","CE",2010,71),
+  p("Max Evans","SCO","CE",2011,73),
+  p("Gavin Hastings","SCO","FB",1990,86), p("Gavin Hastings","SCO","FB",1991,85),
+  p("Gavin Hastings","SCO","FB",1995,86), p("Glenn Metcalfe","SCO","FB",1999,74),
+  p("Chris Paterson","SCO","FB",2004,80), p("Hugo Southwell","SCO","FB",2007,72),
+  p("Rory Lamont","SCO","FB",2009,71), p("Stuart Hogg","SCO","FB",2013,84),
+
+  p("Grégoire Lascubé","FRA","LP",1992,73), p("Louis Armary","FRA","LP",1991,72),
+  p("Christian Califano","FRA","LP",1997,80), p("Christian Califano","FRA","LP",2000,79),
+  p("Sylvain Marconnet","FRA","LP",2002,79), p("Sylvain Marconnet","FRA","LP",2006,78),
+  p("Olivier Milloud","FRA","LP",2004,72), p("Thomas Domingo","FRA","LP",2010,76),
+  p("Jean-François Tordo","FRA","HK",1993,72), p("Jean-Michel Gonzalez","FRA","HK",1996,75),
+  p("Raphaël Ibañez","FRA","HK",1997,82), p("Raphaël Ibañez","FRA","HK",2007,80),
+  p("Fabien Pelous","FRA","HK",1998,76), p("William Servat","FRA","HK",2008,80),
+  p("William Servat","FRA","HK",2010,81), p("Dimitri Szarzewski","FRA","HK",2012,78),
+  p("Philippe Gallart","FRA","TP",1992,71), p("Franck Tournaire","FRA","TP",1997,75),
+  p("Pieter de Villiers","FRA","TP",2002,77), p("Pieter de Villiers","FRA","TP",2006,76),
+  p("Nicolas Mas","FRA","TP",2008,80), p("Nicolas Mas","FRA","TP",2011,81),
+  p("Jean-Baptiste Poux","FRA","TP",2010,73),
+  p("Olivier Roumat","FRA","SR",1992,76), p("Olivier Merle","FRA","SR",1995,77),
+  p("Fabien Pelous","FRA","SR",2000,84), p("Fabien Pelous","FRA","SR",2004,83),
+  p("Lionel Nallet","FRA","SR",2008,79), p("Lionel Nallet","FRA","SR",2010,78),
+  p("Jérôme Thion","FRA","SR",2006,75), p("Pascal Papé","FRA","SR",2012,77),
+  p("Yoann Maestri","FRA","SR",2013,77),
+  p("Laurent Cabannes","FRA","FL",1992,80), p("Laurent Cabannes","FRA","FL",1995,79),
+  p("Abdelatif Benazzi","FRA","FL",1997,80), p("Olivier Magne","FRA","FL",1999,84),
+  p("Olivier Magne","FRA","FL",2002,83), p("Serge Betsen","FRA","FL",2002,82),
+  p("Serge Betsen","FRA","FL",2006,81), p("Thierry Dusautoir","FRA","FL",2008,87),
+  p("Julien Bonnaire","FRA","FL",2010,80), p("Imanol Harinordoquy","FRA","FL",2011,82),
+  p("Marc Cécillon","FRA","N8",1991,75), p("Christophe Juillet","FRA","N8",1996,73),
+  p("Imanol Harinordoquy","FRA","N8",2004,82), p("Imanol Harinordoquy","FRA","N8",2007,81),
+  p("Sébastien Chabal","FRA","N8",2008,79), p("Louis Picamoles","FRA","N8",2012,82),
+  p("Elvis Vermeulen","FRA","N8",2006,69),
+  p("Pierre Berbizier","FRA","SH",1991,78), p("Fabien Galthié","FRA","SH",1994,79),
+  p("Fabien Galthié","FRA","SH",2000,81), p("Fabien Galthié","FRA","SH",2002,82),
+  p("Philippe Carbonneau","FRA","SH",1997,72), p("Dimitri Yachvili","FRA","SH",2004,80),
+  p("Dimitri Yachvili","FRA","SH",2007,81), p("Morgan Parra","FRA","SH",2010,80),
+  p("Jean-Baptiste Élissalde","FRA","SH",2007,77),
+  p("Didier Camberabero","FRA","FH",1991,76), p("Thierry Lacroix","FRA","FH",1995,79),
+  p("Christophe Lamaison","FRA","FH",1997,78), p("Christophe Lamaison","FRA","FH",2000,77),
+  p("Gérald Merceron","FRA","FH",2002,75), p("Frédéric Michalak","FRA","FH",2003,82),
+  p("Frédéric Michalak","FRA","FH",2007,79), p("Lionel Beauxis","FRA","FH",2007,73),
+  p("François Trinh-Duc","FRA","FH",2010,79), p("Morgan Parra","FRA","FH",2012,78),
+  p("Philippe Saint-André","FRA","WG",1991,80), p("Philippe Saint-André","FRA","WG",1994,81),
+  p("Émile Ntamack","FRA","WG",1995,82), p("Émile Ntamack","FRA","WG",1999,81),
+  p("Christophe Dominici","FRA","WG",2000,82), p("Christophe Dominici","FRA","WG",2004,80),
+  p("Aurélien Rougerie","FRA","WG",2002,79), p("Vincent Clerc","FRA","WG",2006,82),
+  p("Vincent Clerc","FRA","WG",2008,83), p("Vincent Clerc","FRA","WG",2010,81),
+  p("Cédric Heymans","FRA","WG",2007,78),
+  p("Philippe Sella","FRA","CE",1991,85), p("Philippe Sella","FRA","CE",1993,84),
+  p("Thierry Lacroix","FRA","CE",1996,76), p("Richard Dourthe","FRA","CE",1999,76),
+  p("Tony Marsh","FRA","CE",2002,75), p("Yannick Jauzion","FRA","CE",2004,84),
+  p("Yannick Jauzion","FRA","CE",2007,83), p("Damien Traille","FRA","CE",2006,74),
+  p("Florian Fritz","FRA","CE",2008,72), p("Aurélien Rougerie","FRA","CE",2011,77),
+  p("Serge Blanco","FRA","FB",1991,88), p("Jean-Luc Sadourny","FRA","FB",1995,80),
+  p("Jean-Luc Sadourny","FRA","FB",1999,79), p("Nicolas Brusque","FRA","FB",2002,73),
+  p("Pepito Elhorga","FRA","FB",2005,70), p("Clément Poitrenaud","FRA","FB",2004,75),
+  p("Cédric Heymans","FRA","FB",2008,77), p("Maxime Médard","FRA","FB",2011,79),
+  p("Clément Poitrenaud","FRA","FB",2012,73),
+
+  p("Massimo Cuttitta","ITA","LP",2000,74), p("Andrea Lo Cicero","ITA","LP",2004,75),
+  p("Andrea Lo Cicero","ITA","LP",2007,74), p("Salvatore Perugini","ITA","LP",2008,70),
+  p("Matías Aguero","ITA","LP",2010,68),
+  p("Carlo Orlandi","ITA","HK",2000,66), p("Alessandro Moscardi","ITA","HK",2002,67),
+  p("Fabio Ongaro","ITA","HK",2004,70), p("Leonardo Ghiraldini","ITA","HK",2010,74),
+  p("Leonardo Ghiraldini","ITA","HK",2012,75),
+  p("Franco Properzi","ITA","TP",2000,64), p("Carlos Nieto","ITA","TP",2005,67),
+  p("Martin Castrogiovanni","ITA","TP",2006,80), p("Martin Castrogiovanni","ITA","TP",2009,81),
+  p("Lorenzo Cittadini","ITA","TP",2012,70),
+  p("Walter Cristofoletto","ITA","SR",2000,65), p("Carlo Checchinato","ITA","SR",2002,70),
+  p("Santiago Dellapè","ITA","SR",2004,73), p("Santiago Dellapè","ITA","SR",2007,72),
+  p("Marco Bortolami","ITA","SR",2005,74), p("Marco Bortolami","ITA","SR",2010,72),
+  p("Quintin Geldenhuys","ITA","SR",2011,72),
+  p("Mauro Bergamasco","ITA","FL",2002,76), p("Mauro Bergamasco","ITA","FL",2007,77),
+  p("Aaron Persico","ITA","FL",2004,68), p("Alessandro Zanni","ITA","FL",2009,73),
+  p("Robert Barbieri","ITA","FL",2011,70), p("Mauro Bergamasco","ITA","FL",2012,73),
+  p("Carlo Checchinato","ITA","N8",2000,69), p("Sergio Parisse","ITA","N8",2004,82),
+  p("Sergio Parisse","ITA","N8",2008,84), p("Sergio Parisse","ITA","N8",2012,83),
+  p("Josh Sole","ITA","N8",2007,68),
+  p("Alessandro Troncon","ITA","SH",2000,75), p("Alessandro Troncon","ITA","SH",2004,76),
+  p("Paul Griffen","ITA","SH",2006,67), p("Pablo Canavosio","ITA","SH",2008,66),
+  p("Edoardo Gori","ITA","SH",2012,69),
+  p("Diego Domínguez","ITA","FH",2000,80), p("Diego Domínguez","ITA","FH",2002,79),
+  p("Ramiro Pez","ITA","FH",2004,71), p("Andrea Marcato","ITA","FH",2008,67),
+  p("Luciano Orquera","ITA","FH",2012,70), p("Luciano Orquera","ITA","FH",2013,71),
+  p("Marcello Cuttitta","ITA","WG",2000,73), p("Denis Dallan","ITA","WG",2002,68),
+  p("Mirco Bergamasco","ITA","WG",2007,73), p("Mirco Bergamasco","ITA","WG",2009,72),
+  p("Kaine Robertson","ITA","WG",2005,66), p("Giovanbattista Venditti","ITA","WG",2012,70),
+  p("Cristian Stoica","ITA","CE",2000,72), p("Cristian Stoica","ITA","CE",2004,71),
+  p("Andrea Masi","ITA","CE",2007,73), p("Gonzalo Canale","ITA","CE",2008,72),
+  p("Gonzalo Canale","ITA","CE",2010,71), p("Alberto Sgarbi","ITA","CE",2011,67),
+  p("Javier Pertile","ITA","FB",2000,65), p("Gert Peens","ITA","FB",2004,68),
+  p("Andrea Masi","ITA","FB",2011,76), p("Andrea Masi","ITA","FB",2012,75),
+  p("Luke McLean","ITA","FB",2009,70), p("Luke McLean","ITA","FB",2013,71),
+];
+
+PLAYERS_EXP.forEach(pl=> PLAYERS.push(pl));
+
+/* ============ GAP-FILL DATA ============ */
+/* Filling thin nation+year combos so every drawable year has players at every position */
+const PLAYERS_FILL = [
+  // ===== ENGLAND gaps =====
+  // 1990
+  p("Rory Underwood","ENG","WG",1990,82), p("Will Carling","ENG","CE",1990,82), p("Rob Andrew","ENG","FH",1990,80),
+  p("Brian Moore","ENG","HK",1990,83), p("Paul Ackford","ENG","SR",1990,81), p("Mike Teague","ENG","FL",1990,79),
+  p("Dean Richards","ENG","N8",1990,82), p("Jeff Probyn","ENG","TP",1990,78), p("Jason Leonard","ENG","LP",1990,80),
+  p("Jonathan Webb","ENG","FB",1990,76), p("Jeremy Guscott","ENG","CE",1990,83),
+  // 1992
+  p("Will Carling","ENG","CE",1992,83), p("Rob Andrew","ENG","FH",1992,81), p("Rory Underwood","ENG","WG",1992,83),
+  p("Jason Leonard","ENG","LP",1992,84), p("Paul Ackford","ENG","SR",1992,80), p("Tim Rodber","ENG","FL",1992,75),
+  p("Dean Richards","ENG","N8",1992,83), p("Jeff Probyn","ENG","TP",1992,79),   // 1993
+  p("Will Carling","ENG","CE",1993,83), p("Rob Andrew","ENG","FH",1993,81),
+  p("Jason Leonard","ENG","LP",1993,85), p("Jeff Probyn","ENG","TP",1993,78), p("Brian Moore","ENG","HK",1993,83),
+  p("Dean Richards","ENG","N8",1993,82), p("Tim Rodber","ENG","FL",1993,75), p("Jonathan Webb","ENG","FB",1993,77),
+  // 1994
+  p("Will Carling","ENG","CE",1994,83), p("Rory Underwood","ENG","WG",1994,82), p("Rob Andrew","ENG","FH",1994,81),
+  p("Jason Leonard","ENG","LP",1994,85), p("Brian Moore","ENG","HK",1994,82), p("Steve Ojomoh","ENG","SR",1994,72),
+  p("Victor Ubogu","ENG","TP",1994,74), p("Jonathan Webb","ENG","FB",1994,76), p("Kyran Bracken","ENG","SH",1994,73),
+  // 1996
+  p("Will Carling","ENG","CE",1996,81), p("Rory Underwood","ENG","WG",1996,81), p("Rob Andrew","ENG","FH",1996,81),
+  p("Jason Leonard","ENG","LP",1996,84), p("Graham Rowntree","ENG","LP",1996,76), p("Simon Shaw","ENG","SR",1996,74),
+  p("Tim Rodber","ENG","FL",1996,75), p("Dean Richards","ENG","N8",1996,80), p("Jon Callard","ENG","FB",1996,73),
+  // 1997
+  p("Will Carling","ENG","CE",1997,80), p("Jon Sleightholme","ENG","WG",1997,74), p("Paul Grayson","ENG","FH",1997,75),
+  p("Jason Leonard","ENG","LP",1997,84), p("Simon Shaw","ENG","SR",1997,75), p("Tim Rodber","ENG","FL",1997,75),
+  p("Lawrence Dallaglio","ENG","N8",1997,84), p("Richard Hill","ENG","FL",1997,83), p("Graham Rowntree","ENG","LP",1997,77),
+  p("Brian Moore","ENG","HK",1997,80), p("Kyran Bracken","ENG","SH",1997,74),
+  // 1998
+  p("Will Greenwood","ENG","CE",1998,79), p("Austin Healey","ENG","WG",1998,74), p("Paul Grayson","ENG","FH",1998,75),
+  p("Jason Leonard","ENG","LP",1998,84), p("Danny Grewcock","ENG","SR",1998,76), p("Richard Hill","ENG","FL",1998,83),
+  p("Neil Back","ENG","FL",1998,84), p("Matt Dawson","ENG","SH",1998,82), p("Tim Stimpson","ENG","FB",1998,73),
+  p("Victor Ubogu","ENG","TP",1998,73), p("Richard Cockerill","ENG","HK",1998,74),
+  // 1999
+  p("Will Greenwood","ENG","CE",1999,80), p("Austin Healey","ENG","WG",1999,75), p("Paul Grayson","ENG","FH",1999,75),
+  p("Martin Johnson","ENG","SR",1999,89), p("Lawrence Dallaglio","ENG","N8",1999,85), p("Matt Dawson","ENG","SH",1999,82),
+  p("Tim Stimpson","ENG","FB",1999,73), p("Richard Cockerill","ENG","HK",1999,74),
+  // 2002
+  p("Will Greenwood","ENG","CE",2002,82), p("Ben Cohen","ENG","WG",2002,80), p("Jonny Wilkinson","ENG","FH",2002,90),
+  p("Matt Dawson","ENG","SH",2002,83), p("Jason Leonard","ENG","LP",2002,84), p("Martin Johnson","ENG","SR",2002,90),
+  p("Lawrence Dallaglio","ENG","N8",2002,86), p("Tim Stimpson","ENG","FB",2002,72), p("Phil Vickery","ENG","TP",2002,83),
+  // 2004
+  p("Will Greenwood","ENG","CE",2004,82), p("Charlie Hodgson","ENG","FH",2004,77),
+  p("Matt Dawson","ENG","SH",2004,83), p("Jason Leonard","ENG","LP",2004,83), p("Martin Johnson","ENG","SR",2004,88),
+  p("Lawrence Dallaglio","ENG","N8",2004,83), p("Phil Vickery","ENG","TP",2004,84), p("Andy Robinson","ENG","FL",2004,72),
+  p("Steve Thompson","ENG","HK",2004,82),
+  // 2006
+  p("Mike Catt","ENG","CE",2006,74), p("Mark Cueto","ENG","WG",2006,77), p("Charlie Hodgson","ENG","FH",2006,76),
+  p("Harry Ellis","ENG","SH",2006,74), p("Martin Corry","ENG","SR",2006,76), p("Lawrence Dallaglio","ENG","N8",2006,80),
+  p("Steve Borthwick","ENG","SR",2006,74), p("Phil Vickery","ENG","TP",2006,82), p("Lee Mears","ENG","HK",2006,68),
+  p("Iain Balshaw","ENG","FB",2006,75), p("Josh Lewsey","ENG","WG",2006,78),
+  // 2013
+  p("Manu Tuilagi","ENG","CE",2013,84), p("Chris Ashton","ENG","WG",2013,80), p("Owen Farrell","ENG","FH",2013,85),
+  p("Ben Youngs","ENG","SH",2013,82), p("Joe Launchbury","ENG","SR",2013,80), p("Tom Wood","ENG","FL",2013,77),
+  p("Billy Vunipola","ENG","N8",2013,83), p("Kyle Eastmond","ENG","CE",2013,73), p("Mike Brown","ENG","FB",2013,82),
+  p("Dan Cole","ENG","TP",2013,81), p("Dylan Hartley","ENG","HK",2013,82), p("Mako Vunipola","ENG","LP",2013,84),
+  // 2014
+  p("Manu Tuilagi","ENG","CE",2014,85), p("Jack Nowell","ENG","WG",2014,78), p("Owen Farrell","ENG","FH",2014,86),
+  p("Ben Youngs","ENG","SH",2014,82), p("Joe Launchbury","ENG","SR",2014,81), p("Tom Wood","ENG","FL",2014,76),
+  p("Billy Vunipola","ENG","N8",2014,85), p("Dan Cole","ENG","TP",2014,82), p("Dylan Hartley","ENG","HK",2014,83),
+  p("Mako Vunipola","ENG","LP",2014,86), p("George Kruis","ENG","SR",2014,80),
+  // 2015
+  p("Luther Burrell","ENG","CE",2015,78), p("Jack Nowell","ENG","WG",2015,79), p("Owen Farrell","ENG","FH",2015,86),
+  p("Ben Youngs","ENG","SH",2015,82), p("Joe Launchbury","ENG","SR",2015,82), p("James Haskell","ENG","FL",2015,79),
+  p("Billy Vunipola","ENG","N8",2015,86), p("Dan Cole","ENG","TP",2015,82), p("Dylan Hartley","ENG","HK",2015,83),
+  p("Mako Vunipola","ENG","LP",2015,87), p("Mike Brown","ENG","FB",2015,83), p("George Kruis","ENG","SR",2015,82),
+  // 2018
+  p("Manu Tuilagi","ENG","CE",2018,84), p("Jonny May","ENG","WG",2018,83),   p("Ben Youngs","ENG","SH",2018,83), p("Maro Itoje","ENG","SR",2018,91), p("Sam Underhill","ENG","FL",2018,83),
+  p("Billy Vunipola","ENG","N8",2018,86), p("Dan Cole","ENG","TP",2018,82), p("Dylan Hartley","ENG","HK",2018,83),
+  p("Mako Vunipola","ENG","LP",2018,88), p("Elliot Daly","ENG","FB",2018,81), p("George Kruis","ENG","SR",2018,83),
+  // 2021
+  p("Henry Slade","ENG","CE",2021,80), p("Jonny May","ENG","WG",2021,83), p("Owen Farrell","ENG","FH",2021,86),
+  p("Ben Youngs","ENG","SH",2021,82), p("Maro Itoje","ENG","SR",2021,91), p("Tom Curry","ENG","FL",2021,87),
+  p("Billy Vunipola","ENG","N8",2021,84), p("Kyle Sinckler","ENG","TP",2021,87), p("Jamie George","ENG","HK",2021,85),
+  p("Mako Vunipola","ENG","LP",2021,88), p("Elliot Daly","ENG","FB",2021,80),
+  // 2022
+  p("Henry Slade","ENG","CE",2022,80), p("Jack Nowell","ENG","WG",2022,79), p("Marcus Smith","ENG","FH",2022,82),
+  p("Ben Youngs","ENG","SH",2022,81), p("Maro Itoje","ENG","SR",2022,91), p("Tom Curry","ENG","FL",2022,88),
+  p("Billy Vunipola","ENG","N8",2022,83), p("Kyle Sinckler","ENG","TP",2022,87), p("Jamie George","ENG","HK",2022,85),
+  p("Elliot Daly","ENG","FB",2022,80), p("Courtney Lawes","ENG","SR",2022,83),
+
+  // ===== IRELAND gaps =====
+  // 1992
+  p("Brian O'Driscoll","IRE","CE",1992,72), p("Denis Hickie","IRE","WG",1992,72), p("Eric Elwood","IRE","FH",1992,72),
+  p("Nick Popplewell","IRE","LP",1992,76), p("Donal Lenihan","IRE","SR",1992,74), p("Philip Matthews","IRE","FL",1992,73),
+  p("Brian Robinson","IRE","N8",1992,70), p("Peter Clohessy","IRE","TP",1992,73), p("Terry Kingston","IRE","HK",1992,69),
+  p("Jim Staples","IRE","FB",1992,70), p("Simon Geoghegan","IRE","WG",1992,76),
+  // 1995 - needs most positions
+  p("Brian O'Driscoll","IRE","CE",1995,72), p("Denis Hickie","IRE","WG",1995,73), p("David Humphreys","IRE","FH",1995,74),
+  p("Nick Popplewell","IRE","LP",1995,76), p("Paddy Johns","IRE","SR",1995,72), p("Denis McBride","IRE","FL",1995,70),
+  p("Anthony Foley","IRE","N8",1995,74), p("Peter Clohessy","IRE","TP",1995,74), p("Terry Kingston","IRE","HK",1995,69),
+  p("Conor O'Shea","IRE","FB",1995,73), p("Keith Wood","IRE","HK",1995,82),
+  // 1998
+  p("Brian O'Driscoll","IRE","CE",1998,78), p("Denis Hickie","IRE","WG",1998,76), p("David Humphreys","IRE","FH",1998,77),
+  p("Nick Popplewell","IRE","LP",1998,75), p("Paddy Johns","IRE","SR",1998,72), p("David Wallace","IRE","FL",1998,77),
+  p("Anthony Foley","IRE","N8",1998,77), p("Paul Wallace","IRE","TP",1998,74), p("Shane Byrne","IRE","HK",1998,70),
+  p("Conor O'Shea","IRE","FB",1998,73), p("Rob Henderson","IRE","CE",1998,72),
+  // 1999
+  p("Brian O'Driscoll","IRE","CE",1999,80), p("Denis Hickie","IRE","WG",1999,77), p("Ronan O'Gara","IRE","FH",1999,82),
+  p("Nick Popplewell","IRE","LP",1999,74), p("Malcolm O'Kelly","IRE","SR",1999,78), p("David Wallace","IRE","FL",1999,78),
+  p("Anthony Foley","IRE","N8",1999,78), p("Paul Wallace","IRE","TP",1999,74), p("Keith Wood","IRE","HK",1999,85),
+  p("Conor O'Shea","IRE","FB",1999,74), p("Peter Stringer","IRE","SH",1999,78),
+  // 2001
+  p("Brian O'Driscoll","IRE","CE",2001,87), p("Denis Hickie","IRE","WG",2001,77), p("Ronan O'Gara","IRE","FH",2001,84),
+  p("Peter Clohessy","IRE","LP",2001,74), p("Malcolm O'Kelly","IRE","SR",2001,79), p("David Wallace","IRE","FL",2001,78),
+  p("Anthony Foley","IRE","N8",2001,78), p("John Hayes","IRE","TP",2001,77), p("Keith Wood","IRE","HK",2001,86),
+  p("Girvan Dempsey","IRE","FB",2001,74), p("Peter Stringer","IRE","SH",2001,80),
+  // 2005
+  p("Brian O'Driscoll","IRE","CE",2005,90), p("Shane Horgan","IRE","WG",2005,79), p("Ronan O'Gara","IRE","FH",2005,86),
+  p("Marcus Horan","IRE","LP",2005,76), p("Paul O'Connell","IRE","SR",2005,87),   p("Anthony Foley","IRE","N8",2005,78), p("John Hayes","IRE","TP",2005,77), p("Shane Byrne","IRE","HK",2005,72),
+  p("Girvan Dempsey","IRE","FB",2005,75), p("Peter Stringer","IRE","SH",2005,80),
+  // 2008
+  p("Brian O'Driscoll","IRE","CE",2008,90), p("Tommy Bowe","IRE","WG",2008,82), p("Ronan O'Gara","IRE","FH",2008,88),
+  p("Marcus Horan","IRE","LP",2008,75), p("Paul O'Connell","IRE","SR",2008,89), p("Stephen Ferris","IRE","FL",2008,80),
+  p("Jamie Heaslip","IRE","N8",2008,83), p("John Hayes","IRE","TP",2008,77), p("Rory Best","IRE","HK",2008,81),
+  p("Girvan Dempsey","IRE","FB",2008,74),   // 2010
+  p("Brian O'Driscoll","IRE","CE",2010,89), p("Tommy Bowe","IRE","WG",2010,83), p("Ronan O'Gara","IRE","FH",2010,87),
+  p("Paul O'Connell","IRE","SR",2010,89), p("Sean O'Brien","IRE","FL",2010,82),
+  p("Jamie Heaslip","IRE","N8",2010,84), p("John Hayes","IRE","TP",2010,75),   p("Rob Kearney","IRE","FB",2010,82), p("Conor Murray","IRE","SH",2010,80),
+  // 2012
+  p("Brian O'Driscoll","IRE","CE",2012,89), p("Tommy Bowe","IRE","WG",2012,83), p("Ronan O'Gara","IRE","FH",2012,86),
+  p("Cian Healy","IRE","LP",2012,84), p("Paul O'Connell","IRE","SR",2012,89), p("Peter O'Mahony","IRE","FL",2012,78),
+  p("Jamie Heaslip","IRE","N8",2012,85), p("Mike Ross","IRE","TP",2012,78), p("Rory Best","IRE","HK",2012,83),
+  p("Rob Kearney","IRE","FB",2012,82), p("Conor Murray","IRE","SH",2012,83),
+  // 2016
+  p("Robbie Henshaw","IRE","CE",2016,84), p("Keith Earls","IRE","WG",2016,82), p("Johnny Sexton","IRE","FH",2016,91),
+  p("Cian Healy","IRE","LP",2016,84), p("Devin Toner","IRE","SR",2016,78), p("Peter O'Mahony","IRE","FL",2016,83),
+  p("Mike Ross","IRE","TP",2016,79), p("Rory Best","IRE","HK",2016,85),
+  p("Rob Kearney","IRE","FB",2016,82),   // 2017
+  p("Robbie Henshaw","IRE","CE",2017,85), p("Keith Earls","IRE","WG",2017,83), p("Johnny Sexton","IRE","FH",2017,92),
+  p("Cian Healy","IRE","LP",2017,85), p("Devin Toner","IRE","SR",2017,79), p("Peter O'Mahony","IRE","FL",2017,84),
+  p("CJ Stander","IRE","N8",2017,85), p("Rory Best","IRE","HK",2017,86),
+  p("Rob Kearney","IRE","FB",2017,82), p("Conor Murray","IRE","SH",2017,89),
+  // 2019
+  p("Robbie Henshaw","IRE","CE",2019,85), p("Jacob Stockdale","IRE","WG",2019,83),   p("Cian Healy","IRE","LP",2019,83), p("Iain Henderson","IRE","SR",2019,83), p("Peter O'Mahony","IRE","FL",2019,84),
+  p("CJ Stander","IRE","N8",2019,85), p("Rory Best","IRE","HK",2019,85),
+  p("Rob Kearney","IRE","FB",2019,80), p("Conor Murray","IRE","SH",2019,87),
+  // 2020
+  p("Robbie Henshaw","IRE","CE",2020,84), p("James Lowe","IRE","WG",2020,83), p("Johnny Sexton","IRE","FH",2020,90),
+  p("Cian Healy","IRE","LP",2020,82), p("Iain Henderson","IRE","SR",2020,83), p("Peter O'Mahony","IRE","FL",2020,83),
+  p("CJ Stander","IRE","N8",2020,84), p("Tadhg Furlong","IRE","TP",2020,90), p("Ronan Kelleher","IRE","HK",2020,82),
+  p("Hugo Keenan","IRE","FB",2020,83), p("Jamison Gibson-Park","IRE","SH",2020,85),
+  // 2022
+  p("Bundee Aki","IRE","CE",2022,86), p("Mack Hansen","IRE","WG",2022,83), p("Johnny Sexton","IRE","FH",2022,90),
+  p("Tadhg Beirne","IRE","SR",2022,87),   p("Caelan Doris","IRE","N8",2022,87), p("Tadhg Furlong","IRE","TP",2022,91), p("Dan Sheehan","IRE","HK",2022,87),
+  p("Hugo Keenan","IRE","FB",2022,85), p("Jamison Gibson-Park","IRE","SH",2022,88),
+
+  // ===== SCOTLAND gaps =====
+  // 1992
+  p("Scott Hastings","SCO","CE",1992,76), p("Tony Stanger","SCO","WG",1992,77), p("Craig Chalmers","SCO","FH",1992,77),
+  p("David Sole","SCO","LP",1992,77), p("Damian Cronin","SCO","SR",1992,71), p("John Jeffrey","SCO","FL",1992,78),
+  p("Derek White","SCO","N8",1992,74), p("Paul Burnell","SCO","TP",1992,70), p("Kenny Milne","SCO","HK",1992,71),
+  p("Gavin Hastings","SCO","FB",1992,85), p("Gary Armstrong","SCO","SH",1992,79),
+  // 1993
+  p("Scott Hastings","SCO","CE",1993,75), p("Tony Stanger","SCO","WG",1993,76), p("Craig Chalmers","SCO","FH",1993,76),
+  p("David Sole","SCO","LP",1993,76), p("Andy Reed","SCO","SR",1993,71), p("Rob Wainwright","SCO","FL",1993,72),
+  p("Derek White","SCO","N8",1993,73), p("Gavin Hastings","SCO","FB",1993,85),
+  p("Gary Armstrong","SCO","SH",1993,78),
+  // 1994
+  p("Scott Hastings","SCO","CE",1994,75), p("Tony Stanger","SCO","WG",1994,75), p("Craig Chalmers","SCO","FH",1994,76),
+  p("David Sole","SCO","LP",1994,75), p("Doddie Weir","SCO","SR",1994,73), p("Rob Wainwright","SCO","FL",1994,72),
+  p("Eric Peters","SCO","N8",1994,71), p("Paul Burnell","SCO","TP",1994,70), p("Kenny Milne","SCO","HK",1994,71),
+  p("Gavin Hastings","SCO","FB",1994,84), p("Bryan Redpath","SCO","SH",1994,73),
+  // 1996
+  p("Alan Tait","SCO","CE",1996,74), p("Kenny Logan","SCO","WG",1996,72), p("Gregor Townsend","SCO","FH",1996,78),
+  p("Tom Smith","SCO","LP",1996,78), p("Doddie Weir","SCO","SR",1996,73), p("Rob Wainwright","SCO","FL",1996,73),
+  p("Euan Murray","SCO","TP",1996,70), p("Gordon Bulloch","SCO","HK",1996,71),
+  p("Rowen Shepherd","SCO","FB",1996,71), p("Bryan Redpath","SCO","SH",1996,73),
+  // 1997 - needs HK, FL, N8, CE, FB, FH, SH, WG
+  p("Alan Tait","SCO","CE",1997,75), p("Kenny Logan","SCO","WG",1997,73), p("Gregor Townsend","SCO","FH",1997,79),
+  p("Gordon Bulloch","SCO","HK",1997,71), p("Rob Wainwright","SCO","FL",1997,74),
+  p("Eric Peters","SCO","N8",1997,73), p("Bryan Redpath","SCO","SH",1997,73),
+  p("Rowen Shepherd","SCO","FB",1997,71), p("Euan Murray","SCO","TP",1997,71),
+  // 1998
+  p("Alan Tait","SCO","CE",1998,75), p("Kenny Logan","SCO","WG",1998,73), p("Gregor Townsend","SCO","FH",1998,80),
+  p("Tom Smith","SCO","LP",1998,79), p("Doddie Weir","SCO","SR",1998,73), p("Rob Wainwright","SCO","FL",1998,73),
+  p("Eric Peters","SCO","N8",1998,73), p("Gordon Bulloch","SCO","HK",1998,72), p("Euan Murray","SCO","TP",1998,71),
+  p("Rowen Shepherd","SCO","FB",1998,71), p("Bryan Redpath","SCO","SH",1998,73),
+  // 2001
+  p("Andy Henderson","SCO","CE",2001,67), p("Kenny Logan","SCO","WG",2001,73), p("Gregor Townsend","SCO","FH",2001,79),
+  p("Tom Smith","SCO","LP",2001,79), p("Scott Murray","SCO","SR",2001,77), p("Budge Pountney","SCO","FL",2001,73),
+  p("Simon Taylor","SCO","N8",2001,77), p("Gordon Bulloch","SCO","HK",2001,72), p("Bruce Douglas","SCO","TP",2001,66),
+  p("Glenn Metcalfe","SCO","FB",2001,73), p("Bryan Redpath","SCO","SH",2001,74),
+  // 2011
+  p("Alex Dunbar","SCO","CE",2011,72), p("Ruaridh Jackson","SCO","FH",2011,70),
+  p("Allan Jacobsen","SCO","LP",2011,70), p("Jim Hamilton","SCO","SR",2011,72), p("John Barclay","SCO","FL",2011,74),
+  p("David Denton","SCO","N8",2011,73), p("Ross Ford","SCO","HK",2011,72), p("Euan Murray","SCO","TP",2011,77),
+  p("Stuart Hogg","SCO","FB",2011,80), p("Greig Laidlaw","SCO","SH",2011,78),
+  // 2014
+  p("Matt Scott","SCO","CE",2014,74), p("Tim Visser","SCO","WG",2014,74), p("Finn Russell","SCO","FH",2014,82),
+  p("Alasdair Dickinson","SCO","LP",2014,70), p("Grant Gilchrist","SCO","SR",2014,76), p("David Denton","SCO","N8",2014,74),
+  p("Ross Ford","SCO","HK",2014,72), p("WP Nel","SCO","TP",2014,78), p("Stuart Hogg","SCO","FB",2014,85),
+  p("Greig Laidlaw","SCO","SH",2014,80), p("Hamish Watson","SCO","FL",2014,79),
+  // 2015
+  p("Matt Scott","SCO","CE",2015,74), p("Tim Visser","SCO","WG",2015,74), p("Finn Russell","SCO","FH",2015,83),
+  p("Gordon Reid","SCO","LP",2015,72), p("Grant Gilchrist","SCO","SR",2015,77), p("John Barclay","SCO","FL",2015,80),
+  p("Ross Ford","SCO","HK",2015,72), p("WP Nel","SCO","TP",2015,79),
+  p("Stuart Hogg","SCO","FB",2015,86), p("Greig Laidlaw","SCO","SH",2015,80),
+  // 2019
+  p("Huw Jones","SCO","CE",2019,79), p("Darcy Graham","SCO","WG",2019,80), p("Finn Russell","SCO","FH",2019,87),
+  p("Gordon Reid","SCO","LP",2019,79), p("Grant Gilchrist","SCO","SR",2019,78), p("Hamish Watson","SCO","FL",2019,85),
+  p("Matt Fagerson","SCO","N8",2019,76), p("WP Nel","SCO","TP",2019,79),
+  p("Stuart Hogg","SCO","FB",2019,84), p("Ali Price","SCO","SH",2019,81),
+  // 2020
+  p("Huw Jones","SCO","CE",2020,80), p("Darcy Graham","SCO","WG",2020,80), p("Finn Russell","SCO","FH",2020,87),
+  p("Scott Cummings","SCO","SR",2020,75), p("Hamish Watson","SCO","FL",2020,85),
+  p("Matt Fagerson","SCO","N8",2020,77), p("George Turner","SCO","HK",2020,76), p("Zander Fagerson","SCO","TP",2020,83),
+  p("Stuart Hogg","SCO","FB",2020,85), p("Ali Price","SCO","SH",2020,81),
+  // 2024
+  p("Huw Jones","SCO","CE",2024,82), p("Kyle Rowe","SCO","WG",2024,78), p("Ben Healy","SCO","FH",2024,80),
+  p("Pierre Schoeman","SCO","LP",2024,82), p("Grant Gilchrist","SCO","SR",2024,78), p("Rory Darge","SCO","FL",2024,83),
+  p("Matt Fagerson","SCO","N8",2024,80), p("Ewan Ashman","SCO","HK",2024,77), p("Zander Fagerson","SCO","TP",2024,84),
+  p("Blair Kinghorn","SCO","FB",2024,82), p("Ben White","SCO","SH",2024,79),
+
+  // ===== WALES gaps =====
+  // 1992
+  p("Scott Gibbs","WAL","CE",1992,74), p("Ieuan Evans","WAL","WG",1992,80), p("Neil Jenkins","WAL","FH",1992,76),
+  p("Mike Griffiths","WAL","LP",1992,69), p("Gareth Llewellyn","WAL","SR",1992,71),   p("Phil Davies","WAL","N8",1992,72), p("John Davies","WAL","TP",1992,68), p("Garin Jenkins","WAL","HK",1992,69),
+  p("Tony Clement","WAL","FB",1992,71), p("Robert Jones","WAL","SH",1992,75),
+  // 1993
+  p("Scott Gibbs","WAL","CE",1993,76), p("Ieuan Evans","WAL","WG",1993,80), p("Neil Jenkins","WAL","FH",1993,77),
+  p("Mike Griffiths","WAL","LP",1993,68), p("Gareth Llewellyn","WAL","SR",1993,72), p("Emyr Lewis","WAL","FL",1993,70),
+  p("Phil Davies","WAL","N8",1993,71), p("John Davies","WAL","TP",1993,68), p("Garin Jenkins","WAL","HK",1993,70),
+  p("Tony Clement","WAL","FB",1993,71), p("Rupert Moon","WAL","SH",1993,67),
+  // 1998
+  p("Scott Gibbs","WAL","CE",1998,79), p("Gareth Thomas","WAL","WG",1998,79), p("Neil Jenkins","WAL","FH",1998,80),
+  p("Dai Young","WAL","LP",1998,73), p("Gareth Llewellyn","WAL","SR",1998,70), p("Colin Charvis","WAL","FL",1998,77),
+  p("Scott Quinnell","WAL","N8",1998,79), p("Adam Jones","WAL","TP",1998,73), p("Garin Jenkins","WAL","HK",1998,70),
+  p("Kevin Morgan","WAL","FB",1998,71), p("Robert Howley","WAL","SH",1998,80),
+  // 2003
+  p("Mark Taylor","WAL","CE",2003,72), p("Stephen Jones","WAL","FH",2003,80),
+  p("Gethin Jenkins","WAL","LP",2003,80), p("Gareth Llewellyn","WAL","SR",2003,70), p("Colin Charvis","WAL","FL",2003,78),
+  p("Jonathan Thomas","WAL","N8",2003,72), p("Adam Jones","WAL","TP",2003,76), p("Robin McBryde","WAL","HK",2003,70),
+  p("Kevin Morgan","WAL","FB",2003,73), p("Dwayne Peel","WAL","SH",2003,77),
+  // 2004
+  p("Tom Shanklin","WAL","CE",2004,77), p("Gareth Thomas","WAL","WG",2004,81), p("Stephen Jones","WAL","FH",2004,81),
+  p("Gethin Jenkins","WAL","LP",2004,82), p("Gareth Llewellyn","WAL","SR",2004,70), p("Martyn Williams","WAL","FL",2004,83),
+  p("Ryan Jones","WAL","N8",2004,77), p("Adam Jones","WAL","TP",2004,79), p("Mefin Davies","WAL","HK",2004,67),
+  p("Kevin Morgan","WAL","FB",2004,73), p("Dwayne Peel","WAL","SH",2004,79),
+  // 2006
+  p("Tom Shanklin","WAL","CE",2006,78), p("Shane Williams","WAL","WG",2006,88), p("Stephen Jones","WAL","FH",2006,82),
+  p("Gethin Jenkins","WAL","LP",2006,83), p("Alun Wyn Jones","WAL","SR",2006,82), p("Martyn Williams","WAL","FL",2006,84),
+  p("Ryan Jones","WAL","N8",2006,79), p("Adam Jones","WAL","TP",2006,82), p("Matthew Rees","WAL","HK",2006,76),
+  p("Kevin Morgan","WAL","FB",2006,72), p("Dwayne Peel","WAL","SH",2006,79),
+  // 2010
+  p("Jamie Roberts","WAL","CE",2010,84), p("Shane Williams","WAL","WG",2010,89), p("Stephen Jones","WAL","FH",2010,81),
+  p("Gethin Jenkins","WAL","LP",2010,84), p("Alun Wyn Jones","WAL","SR",2010,88), p("Sam Warburton","WAL","FL",2010,84),
+  p("Toby Faletau","WAL","N8",2010,79), p("Adam Jones","WAL","TP",2010,84), p("Matthew Rees","WAL","HK",2010,78),
+  p("Lee Byrne","WAL","FB",2010,79), p("Mike Phillips","WAL","SH",2010,83),
+  // 2013
+  p("Jamie Roberts","WAL","CE",2013,84), p("Alex Cuthbert","WAL","WG",2013,80),   p("Gethin Jenkins","WAL","LP",2013,82), p("Alun Wyn Jones","WAL","SR",2013,89), p("Sam Warburton","WAL","FL",2013,87),
+  p("Toby Faletau","WAL","N8",2013,84), p("Adam Jones","WAL","TP",2013,83), p("Ken Owens","WAL","HK",2013,81),
+  p("Leigh Halfpenny","WAL","FB",2013,87), p("Mike Phillips","WAL","SH",2013,82),
+  // 2016
+  p("George North","WAL","WG",2016,84), p("Dan Biggar","WAL","FH",2016,84),
+  p("Rob Evans","WAL","LP",2016,78), p("Alun Wyn Jones","WAL","SR",2016,89),   p("Tomas Francis","WAL","TP",2016,77), p("Ken Owens","WAL","HK",2016,82),
+  p("Leigh Halfpenny","WAL","FB",2016,85), p("Rhys Webb","WAL","SH",2016,82),
+  // 2017
+  p("Jonathan Davies","WAL","CE",2017,85), p("George North","WAL","WG",2017,84), p("Dan Biggar","WAL","FH",2017,84),
+  p("Alun Wyn Jones","WAL","SR",2017,89), p("Sam Warburton","WAL","FL",2017,87),
+  p("Taulupe Faletau","WAL","N8",2017,86), p("Tomas Francis","WAL","TP",2017,77), p("Ken Owens","WAL","HK",2017,83),
+  p("Leigh Halfpenny","WAL","FB",2017,85), p("Rhys Webb","WAL","SH",2017,82),
+  // 2018
+  p("Jonathan Davies","WAL","CE",2018,85), p("George North","WAL","WG",2018,84), p("Dan Biggar","WAL","FH",2018,85),
+  p("Rob Evans","WAL","LP",2018,79), p("Alun Wyn Jones","WAL","SR",2018,89), p("Justin Tipuric","WAL","FL",2018,86),
+  p("Taulupe Faletau","WAL","N8",2018,86), p("Tomas Francis","WAL","TP",2018,78), p("Ken Owens","WAL","HK",2018,83),
+  p("Leigh Halfpenny","WAL","FB",2018,86), p("Rhys Webb","WAL","SH",2018,81),
+  // 2022
+  p("Jonathan Davies","WAL","CE",2022,82), p("Louis Rees-Zammit","WAL","WG",2022,82), p("Dan Biggar","WAL","FH",2022,83),
+  p("Gareth Thomas","WAL","LP",2022,74), p("Alun Wyn Jones","WAL","SR",2022,84), p("Justin Tipuric","WAL","FL",2022,83),
+  p("Taulupe Faletau","WAL","N8",2022,85), p("Tomas Francis","WAL","TP",2022,79), p("Ken Owens","WAL","HK",2022,83),
+  p("Leigh Halfpenny","WAL","FB",2022,82), p("Tomos Williams","WAL","SH",2022,80),
+  // 2024
+  p("Mason Grady","WAL","CE",2024,76), p("Louis Rees-Zammit","WAL","WG",2024,82), p("Sam Costelow","WAL","FH",2024,75),
+  p("Gareth Thomas","WAL","LP",2024,73), p("Adam Beard","WAL","SR",2024,78), p("Tommy Reffell","WAL","FL",2024,78),
+  p("Taulupe Faletau","WAL","N8",2024,82), p("Tomas Francis","WAL","TP",2024,78), p("Dewi Lake","WAL","HK",2024,77),
+  p("Liam Williams","WAL","FB",2024,80), p("Tomos Williams","WAL","SH",2024,79),
+
+  // ===== FRANCE gaps =====
+  // 1993
+  p("Philippe Saint-André","FRA","WG",1993,80),
+  p("Thierry Lacroix","FRA","FH",1993,77), p("Louis Armary","FRA","LP",1993,71),
+  p("Olivier Roumat","FRA","SR",1993,75), p("Laurent Cabannes","FRA","FL",1993,79),
+  p("Marc Cécillon","FRA","N8",1993,74), p("Pierre Berbizier","FRA","SH",1993,76),
+  p("Philippe Gallart","FRA","TP",1993,70), p("Jean-Luc Sadourny","FRA","FB",1993,77),
+  // 1994
+  p("Philippe Sella","FRA","CE",1994,83), p("Émile Ntamack","FRA","WG",1994,80),
+  p("Thierry Lacroix","FRA","FH",1994,77), p("Christian Califano","FRA","LP",1994,77),
+  p("Fabien Pelous","FRA","SR",1994,79), p("Laurent Cabannes","FRA","FL",1994,79),
+  p("Abdelatif Benazzi","FRA","N8",1994,78),   p("Franck Tournaire","FRA","TP",1994,72), p("Jean-Luc Sadourny","FRA","FB",1994,77),
+  p("Jean-Michel Gonzalez","FRA","HK",1994,73),
+  // 1996
+  p("Richard Dourthe","FRA","CE",1996,74), p("Émile Ntamack","FRA","WG",1996,80),
+  p("Christian Califano","FRA","LP",1996,78),
+  p("Fabien Pelous","FRA","SR",1996,81), p("Abdelatif Benazzi","FRA","FL",1996,79),
+  p("Imanol Harinordoquy","FRA","N8",1996,74), p("Philippe Carbonneau","FRA","SH",1996,72),
+  p("Pieter de Villiers","FRA","TP",1996,74), p("Jean-Luc Sadourny","FRA","FB",1996,78),
+  // 1998
+  p("Richard Dourthe","FRA","CE",1998,74), p("Christophe Dominici","FRA","WG",1998,79),
+  p("Christophe Lamaison","FRA","FH",1998,76), p("Christian Califano","FRA","LP",1998,78),
+  p("Olivier Magne","FRA","FL",1998,82),
+  p("Imanol Harinordoquy","FRA","N8",1998,76), p("Philippe Carbonneau","FRA","SH",1998,71),
+  p("Pieter de Villiers","FRA","TP",1998,75), p("Raphaël Ibañez","FRA","HK",1998,80),
+  p("Jean-Luc Sadourny","FRA","FB",1998,78),
+  // 2001
+  p("Yannick Jauzion","FRA","CE",2001,80), p("Christophe Dominici","FRA","WG",2001,81),
+  p("Christophe Lamaison","FRA","FH",2001,76), p("Christian Califano","FRA","LP",2001,77),
+  p("Fabien Pelous","FRA","SR",2001,83), p("Olivier Magne","FRA","FL",2001,82),
+  p("Imanol Harinordoquy","FRA","N8",2001,79), p("Fabien Galthié","FRA","SH",2001,80),
+  p("Pieter de Villiers","FRA","TP",2001,76), p("Raphaël Ibañez","FRA","HK",2001,81),
+  p("Nicolas Brusque","FRA","FB",2001,72),
+  // 2003
+  p("Yannick Jauzion","FRA","CE",2003,82), p("Christophe Dominici","FRA","WG",2003,81),
+  p("Sylvain Marconnet","FRA","LP",2003,77),
+  p("Fabien Pelous","FRA","SR",2003,82), p("Serge Betsen","FRA","FL",2003,81),
+  p("Imanol Harinordoquy","FRA","N8",2003,80), p("Fabien Galthié","FRA","SH",2003,81),
+  p("Pieter de Villiers","FRA","TP",2003,76), p("Raphaël Ibañez","FRA","HK",2003,80),
+  p("Nicolas Brusque","FRA","FB",2003,72),
+  // 2005
+  p("Yannick Jauzion","FRA","CE",2005,83), p("Christophe Dominici","FRA","WG",2005,79),
+  p("Frédéric Michalak","FRA","FH",2005,80), p("Sylvain Marconnet","FRA","LP",2005,77),
+  p("Fabien Pelous","FRA","SR",2005,82), p("Serge Betsen","FRA","FL",2005,80),
+  p("Imanol Harinordoquy","FRA","N8",2005,81), p("Dimitri Yachvili","FRA","SH",2005,79),
+  p("Nicolas Mas","FRA","TP",2005,77), p("Raphaël Ibañez","FRA","HK",2005,79),
+  p("Clément Poitrenaud","FRA","FB",2005,74),
+  // 2009
+  p("Maxime Mermoz","FRA","CE",2009,75), p("Alexis Palisson","FRA","WG",2009,76),
+  p("François Trinh-Duc","FRA","FH",2009,77), p("Sylvain Marconnet","FRA","LP",2009,75),
+  p("Lionel Nallet","FRA","SR",2009,78), p("Thierry Dusautoir","FRA","FL",2009,86),
+  p("Imanol Harinordoquy","FRA","N8",2009,80), p("Morgan Parra","FRA","SH",2009,79),
+  p("Nicolas Mas","FRA","TP",2009,79), p("William Servat","FRA","HK",2009,80),
+  p("Maxime Médard","FRA","FB",2009,78),
+  // 2013
+  p("Mathieu Bastareaud","FRA","CE",2013,78), p("Yoann Huget","FRA","WG",2013,80),
+  p("Frédéric Michalak","FRA","FH",2013,78), p("Jefferson Poirot","FRA","LP",2013,73),
+  p("Pascal Papé","FRA","SR",2013,76), p("Yannick Nyanga","FRA","FL",2013,79),
+  p("Louis Picamoles","FRA","N8",2013,82), p("Morgan Parra","FRA","SH",2013,80),
+  p("Nicolas Mas","FRA","TP",2013,80), p("Dimitri Szarzewski","FRA","HK",2013,77),
+  p("Brice Dulin","FRA","FB",2013,77),
+  // 2015
+  p("Mathieu Bastareaud","FRA","CE",2015,79), p("Yoann Huget","FRA","WG",2015,80),
+  p("Frédéric Michalak","FRA","FH",2015,77), p("Jefferson Poirot","FRA","LP",2015,75),
+  p("Yoann Maestri","FRA","SR",2015,77), p("Thierry Dusautoir","FRA","FL",2015,84),
+  p("Louis Picamoles","FRA","N8",2015,83), p("Maxime Machenaud","FRA","SH",2015,79),
+  p("Rabah Slimani","FRA","TP",2015,79), p("Guilhem Guirado","FRA","HK",2015,83),
+  p("Scott Spedding","FRA","FB",2015,75),
+  // 2017
+  p("Gaël Fickou","FRA","CE",2017,83), p("Sofiane Guitoune","FRA","WG",2017,77),
+  p("Camille Lopez","FRA","FH",2017,79), p("Jefferson Poirot","FRA","LP",2017,77),
+  p("Sébastien Vahaamahina","FRA","SR",2017,79), p("François Cros","FRA","FL",2017,80),
+  p("Louis Picamoles","FRA","N8",2017,82), p("Baptiste Serin","FRA","SH",2017,77),
+  p("Rabah Slimani","FRA","TP",2017,79), p("Guilhem Guirado","FRA","HK",2017,82),
+  p("Brice Dulin","FRA","FB",2017,80),
+  // 2019
+  p("Gaël Fickou","FRA","CE",2019,83), p("Damian Penaud","FRA","WG",2019,84),
+  p("Romain Ntamack","FRA","FH",2019,83),   p("Paul Willemse","FRA","SR",2019,80), p("Charles Ollivon","FRA","FL",2019,85),
+  p("Grégory Alldritt","FRA","N8",2019,86), p("Antoine Dupont","FRA","SH",2019,89),
+  p("Uini Atonio","FRA","TP",2019,82), p("Julien Marchand","FRA","HK",2019,82),
+  p("Thomas Ramos","FRA","FB",2019,82),
+  // 2021
+  p("Gaël Fickou","FRA","CE",2021,84), p("Damian Penaud","FRA","WG",2021,86),
+  p("Matthieu Jalibert","FRA","FH",2021,83), p("Cyril Baille","FRA","LP",2021,86),
+  p("Paul Willemse","FRA","SR",2021,81), p("Charles Ollivon","FRA","FL",2021,86),
+  p("Grégory Alldritt","FRA","N8",2021,88), p("Antoine Dupont","FRA","SH",2021,94),
+  p("Uini Atonio","FRA","TP",2021,83), p("Julien Marchand","FRA","HK",2021,83),
+  p("Thomas Ramos","FRA","FB",2021,84),
+
+  // ===== ITALY gaps =====
+  // 2003
+  p("Mirco Bergamasco","ITA","WG",2003,70), p("Roland de Marigny","ITA","FH",2003,66),
+  p("Cristian Stoica","ITA","CE",2003,70), p("Massimo Ravazzolo","ITA","FB",2003,65),
+  p("Andrea Lo Cicero","ITA","LP",2003,73), p("Alessandro Zanni","ITA","SR",2003,70),
+  p("Mauro Bergamasco","ITA","FL",2003,74), p("Sergio Parisse","ITA","N8",2003,79),
+  p("Alessandro Troncon","ITA","SH",2003,74), p("Fabio Ongaro","ITA","HK",2003,68),
+  p("Martin Castrogiovanni","ITA","TP",2003,77),
+  // 2006
+  p("Mirco Bergamasco","ITA","WG",2006,71), p("Roland de Marigny","ITA","FH",2006,66),
+  p("Gonzalo Canale","ITA","CE",2006,69), p("David Bortolussi","ITA","FB",2006,65),
+  p("Andrea Lo Cicero","ITA","LP",2006,74), p("Marco Bortolami","ITA","SR",2006,73),
+  p("Mauro Bergamasco","ITA","FL",2006,75), p("Sergio Parisse","ITA","N8",2006,82),
+  p("Pablo Canavosio","ITA","SH",2006,65), p("Leonardo Ghiraldini","ITA","HK",2006,70),
+  // 2015
+  p("Michele Campagnaro","ITA","CE",2015,74), p("Tommaso Benvenuti","ITA","WG",2015,71),
+  p("Carlo Canna","ITA","FH",2015,70), p("Andrea Masi","ITA","FB",2015,73),
+  p("Andrea Lovotti","ITA","LP",2015,69), p("Marco Bortolami","ITA","SR",2015,70),
+  p("Robert Barbieri","ITA","FL",2015,68), p("Sergio Parisse","ITA","N8",2015,83),
+  p("Edoardo Gori","ITA","SH",2015,69), p("Leonardo Ghiraldini","ITA","HK",2015,74),
+  p("Martin Castrogiovanni","ITA","TP",2015,79),
+  // 2017
+  p("Michele Campagnaro","ITA","CE",2017,73), p("Mattia Bellini","ITA","WG",2017,70),
+  p("Tommaso Allan","ITA","FH",2017,73), p("Jayden Hayward","ITA","FB",2017,71),
+  p("Andrea Lovotti","ITA","LP",2017,70), p("Dean Budd","ITA","SR",2017,71),
+  p("Sebastian Negri","ITA","FL",2017,76), p("Sergio Parisse","ITA","N8",2017,82),
+  p("Edoardo Gori","ITA","SH",2017,69), p("Leonardo Ghiraldini","ITA","HK",2017,73),
+  p("Simone Ferrari","ITA","TP",2017,71),
+  // 2021
+  p("Juan Ignacio Brex","ITA","CE",2021,76), p("Monty Ioane","ITA","WG",2021,74),
+  p("Paolo Garbisi","ITA","FH",2021,77), p("Matteo Minozzi","ITA","FB",2021,77),
+  p("Danilo Fischetti","ITA","LP",2021,71),   p("Michele Lamaro","ITA","FL",2021,77), p("Lorenzo Cannone","ITA","N8",2021,73),
+  p("Stephen Varney","ITA","SH",2021,72), p("Luca Bigi","ITA","HK",2021,70),
+  p("Marco Riccioni","ITA","TP",2021,72),
+];
+
+PLAYERS_FILL.forEach(pl=> PLAYERS.push(pl));
+
+
+const PLAYERS_AUTO = [
+  p("Anthony Watson","ENG","WG",2016,85),
+  p("Dan Cole","ENG","TP",2017,83),
+  p("James Haskell","ENG","FL",2017,80),
+  p("Ben Youngs","ENG","SH",2017,84),
+  p("Mike Brown","ENG","FB",2017,82),
+  p("Billy Vunipola","ENG","N8",2023,83),
+  p("Alex Mitchell","ENG","SH",2023,81),
+  p("Marcus Smith","ENG","FH",2023,82),
+    p("Henry Slade","ENG","CE",2023,80),
+    p("Rory Best","IRE","HK",2014,85),
+  p("Conor Murray","IRE","SH",2014,88),
+  p("Tadhg Furlong","IRE","TP",2024,90),
+  p("Tadhg Beirne","IRE","SR",2024,89),
+  p("Peter O'Mahony","IRE","FL",2024,84),
+  p("Mike Ross","IRE","TP",2015,80),
+  p("Sean O'Brien","IRE","FL",2015,86),
+  p("Jamie Heaslip","IRE","N8",2015,86),
+  p("Johnny Sexton","IRE","FH",2015,90),
+  p("Tommy Bowe","IRE","WG",2015,82),
+  p("Brian O'Driscoll","IRE","CE",2015,89),
+  p("Rob Kearney","IRE","FB",2015,84),
+  p("Nick Tompkins","WAL","CE",2021,77),
+  p("Toby Faletau","WAL","N8",2014,84),
+  p("Leigh Halfpenny","WAL","FB",2019,86),
+  p("Ross Ford","SCO","HK",2017,72),
+  p("WP Nel","SCO","TP",2017,80),
+  p("Jonny Gray","SCO","SR",2017,84),
+  p("Ryan Wilson","SCO","N8",2017,78),
+  p("Greig Laidlaw","SCO","SH",2017,82),
+  p("Finn Russell","SCO","FH",2017,87),
+  p("Alex Dunbar","SCO","CE",2017,76),
+  p("John Barclay","SCO","FL",2016,82),
+  p("Finn Russell","SCO","FH",2016,83),
+  p("Tommy Seymour","SCO","WG",2016,80),
+  p("Ali Price","SCO","SH",2022,83),
+  p("Huw Jones","SCO","CE",2022,84),
+  p("George Turner","SCO","HK",2023,78),
+  p("Grant Gilchrist","SCO","SR",2023,80),
+  p("Matt Fagerson","SCO","N8",2023,79),
+  p("Finn Russell","SCO","FH",2023,89),
+  p("Darcy Graham","SCO","WG",2023,83),
+  p("Blair Kinghorn","SCO","FB",2023,82),
+  p("Allan Dell","SCO","LP",2018,75),
+  p("WP Nel","SCO","TP",2018,79),
+  p("Sam Johnson","SCO","CE",2018,78),
+  p("Mako Vunipola","ENG","LP",2020,90),
+  p("Jamie George","ENG","HK",2020,87),
+  p("Billy Vunipola","ENG","N8",2020,88),
+  p("Ben Youngs","ENG","SH",2020,85),
+  p("Elliot Daly","ENG","FB",2020,82),
+  p("Gethin Jenkins","WAL","LP",2015,83),
+  p("Scott Baldwin","WAL","HK",2015,74),
+  p("Alun Wyn Jones","WAL","SR",2015,90),
+  p("Sam Warburton","WAL","FL",2015,89),
+  p("Taulupe Faletau","WAL","N8",2015,87),
+  p("George North","WAL","WG",2015,87),
+  p("Jonathan Davies","WAL","CE",2015,86),
+  p("Pierre Schoeman","SCO","LP",2021,82),
+  p("George Turner","SCO","HK",2021,78),
+  p("Matt Fagerson","SCO","N8",2021,79),
+  p("Andrew Porter","IRE","LP",2021,90),
+  p("Ronan Kelleher","IRE","HK",2021,82),
+  p("Tadhg Furlong","IRE","TP",2021,90),
+  p("Josh van der Flier","IRE","FL",2021,90),
+  p("Jamison Gibson-Park","IRE","SH",2021,85),
+  p("Johnny Sexton","IRE","FH",2021,90),
+  p("James Lowe","IRE","WG",2021,83),
+  p("Garry Ringrose","IRE","CE",2021,86),
+  p("Hugo Keenan","IRE","FB",2021,83),
+  p("Wyn Jones","WAL","LP",2020,82),
+  p("Ken Owens","WAL","HK",2020,84),
+  p("Tomas Francis","WAL","TP",2020,79),
+  p("Justin Tipuric","WAL","FL",2020,87),
+  p("Taulupe Faletau","WAL","N8",2020,87),
+  p("Gareth Davies","WAL","SH",2020,82),
+  p("Dan Biggar","WAL","FH",2020,86),
+  p("George North","WAL","WG",2020,85),
+  p("Liam Williams","WAL","FB",2020,85),
+  p("Gareth Thomas","WAL","LP",2023,74),
+  p("Ken Owens","WAL","HK",2023,83),
+  p("Tomas Francis","WAL","TP",2023,79),
+  p("Justin Tipuric","WAL","FL",2023,83),
+  p("Tomos Williams","WAL","SH",2023,80),
+  p("Dan Biggar","WAL","FH",2023,83),
+  p("Louis Rees-Zammit","WAL","WG",2023,82),
+  p("Jonathan Davies","WAL","CE",2023,82),
+  p("Ellis Genge","ENG","LP",2024,90),
+  p("Jamie George","ENG","HK",2024,86),
+  p("Will Stuart","ENG","TP",2024,82),
+  p("Maro Itoje","ENG","SR",2024,91),
+  p("Lewis Ludlam","ENG","FL",2024,78),
+  p("Billy Vunipola","ENG","N8",2024,82),
+  p("Marcus Smith","ENG","FH",2024,81),
+  p("Freddie Steward","ENG","WG",2024,79),
+  p("Henry Slade","ENG","CE",2024,79),
+    p("Paul Willemse","FRA","SR",2023,83),
+  p("Thierry Dusautoir","FRA","FL",2016,84),
+  p("Frédéric Michalak","FRA","FH",2016,77),
+  p("Mathieu Bastareaud","FRA","CE",2016,79),
+  p("Uini Atonio","FRA","TP",2024,86),
+  p("Grégory Alldritt","FRA","N8",2024,89),
+  p("Antoine Dupont","FRA","SH",2024,95),
+  p("Gaël Fickou","FRA","CE",2024,85),
+  p("Jefferson Poirot","FRA","LP",2018,80),
+  p("Rabah Slimani","FRA","TP",2018,79),
+  p("Brice Dulin","FRA","FB",2018,80),
+  p("Jefferson Poirot","FRA","LP",2020,80),
+  p("Julien Marchand","FRA","HK",2020,82),
+  p("Romain Taofifenua","FRA","SR",2020,78),
+  p("Grégory Alldritt","FRA","N8",2020,86),
+  p("Romain Ntamack","FRA","FH",2020,83),
+  p("Damian Penaud","FRA","WG",2020,84),
+  p("Brice Dulin","FRA","FB",2020,82),
+  p("Jefferson Poirot","FRA","LP",2014,73),
+  p("Dimitri Szarzewski","FRA","HK",2014,77),
+  p("Nicolas Mas","FRA","TP",2014,80),
+  p("Yoann Maestri","FRA","SR",2014,77),
+  p("Louis Picamoles","FRA","N8",2014,82),
+  p("Leonardo Ghiraldini","ITA","HK",2018,73),
+  p("Simone Ferrari","ITA","TP",2018,71),
+  p("Dean Budd","ITA","SR",2018,71),
+  p("Edoardo Gori","ITA","SH",2018,69),
+  p("Luca Bigi","ITA","HK",2022,70),
+  p("Lorenzo Cannone","ITA","N8",2022,73),
+  p("Juan Ignacio Brex","ITA","CE",2022,79),
+  p("Luca Bigi","ITA","HK",2019,70),
+  p("Simone Ferrari","ITA","TP",2019,70),
+  p("Federico Ruzza","ITA","SR",2019,73),
+  p("Sergio Parisse","ITA","N8",2019,83),
+  p("Edoardo Gori","ITA","SH",2019,68),
+  p("Tommaso Allan","ITA","FH",2019,75),
+  p("Mattia Bellini","ITA","WG",2019,71),
+  p("Luca Morisi","ITA","CE",2019,74),
+  p("Matteo Minozzi","ITA","FB",2019,79),
+  p("Andrea Lovotti","ITA","LP",2016,69),
+  p("Martin Castrogiovanni","ITA","TP",2016,79),
+  p("Robert Barbieri","ITA","FL",2016,68),
+  p("Michele Campagnaro","ITA","CE",2016,74),
+  p("Andrea Lovotti","ITA","LP",2020,71),
+  p("Marco Riccioni","ITA","TP",2020,72),
+  p("Federico Ruzza","ITA","SR",2020,74),
+  p("Maxime Mbandà","ITA","FL",2020,75),
+  p("Lorenzo Cannone","ITA","N8",2020,73),
+  p("Stephen Varney","ITA","SH",2020,72),
+  p("Paolo Garbisi","ITA","FH",2020,77),
+  p("Monty Ioane","ITA","WG",2020,74),
+  p("Juan Ignacio Brex","ITA","CE",2020,76),
+  p("Matteo Minozzi","ITA","FB",2020,77),
+  p("Danilo Fischetti","ITA","LP",2024,72),
+  p("Pietro Ceccarelli","ITA","TP",2024,71),
+  p("Niccolò Cannone","ITA","SR",2024,75),
+  p("Michele Lamaro","ITA","FL",2024,80),
+    p("Andrea Lovotti","ITA","LP",2014,69),
+  p("Leonardo Ghiraldini","ITA","HK",2014,74),
+  p("Robert Barbieri","ITA","FL",2014,68),
+  p("Edoardo Gori","ITA","SH",2014,69),
+  p("Luciano Orquera","ITA","FH",2014,71),
+  p("Luke McLean","ITA","FB",2014,71),
+  p("Danilo Fischetti","ITA","LP",2023,73),
+  p("Gianmarco Lucchesi","ITA","HK",2023,73),
+  p("Niccolò Cannone","ITA","SR",2023,76),
+  p("Lorenzo Cannone","ITA","N8",2023,77),
+  p("Stephen Varney","ITA","SH",2023,74),
+  p("Paolo Garbisi","ITA","FH",2023,80),
+  p("Jacopo Trulla","ITA","FB",2023,73),
+  p("Richard Hill","ENG","SH",1991,72),
+  p("Jonathan Webb","ENG","FB",1991,78),
+  p("Mark Regan","ENG","HK",1995,74),
+  p("Tim Rodber","ENG","FL",1995,76),
+  p("Dean Richards","ENG","N8",1995,82),
+  p("Kyran Bracken","ENG","SH",1995,75),
+  p("Jonathan Webb","ENG","FB",1995,76),
+  p("Dan Luger","ENG","WG",2000,77),
+  p("Will Greenwood","ENG","CE",2000,83),
+  p("Iain Balshaw","ENG","FB",2000,77),
+  p("Neil Back","ENG","FL",2002,87),
+  p("Lewis Moody","ENG","FL",2006,80),
+  p("Matt Stevens","ENG","TP",2008,77),
+  p("Nick Easter","ENG","N8",2008,78),
+  p("Andy Gomarsall","ENG","SH",2008,72),
+  p("Andy Goode","ENG","FH",2008,70),
+  p("Ugo Monye","ENG","WG",2008,72),
+  p("Mathew Tait","ENG","CE",2008,73),
+  p("Olly Morgan","ENG","FB",2008,67),
+  p("Dylan Hartley","ENG","HK",2011,82),
+  p("Dan Cole","ENG","TP",2011,82),
+  p("Tom Palmer","ENG","SR",2011,74),
+  p("Brian Barritt","ENG","CE",2011,74),
+  p("Victor Ubogu","ENG","TP",1996,75),
+  p("Alex Corbisiero","ENG","LP",2012,79),
+  p("Dan Cole","ENG","TP",2012,81),
+  p("James Haskell","ENG","FL",2012,77),
+  p("Nick Easter","ENG","N8",2012,77),
+  p("Ben Youngs","ENG","SH",2012,82),
+  p("Jonny Wilkinson","ENG","FH",2012,84),
+  p("Ben Foden","ENG","FB",2012,78),
+  p("Andrew Sheridan","ENG","LP",2005,82),
+  p("Mark Regan","ENG","HK",2005,73),
+  p("Lawrence Dallaglio","ENG","N8",2005,83),
+  p("Will Greenwood","ENG","CE",2005,82),
+  p("Jason Robinson","ENG","FB",2005,85),
+  p("Andrew Sheridan","ENG","LP",2007,82),
+  p("Lee Mears","ENG","HK",2007,69),
+  p("Steve Borthwick","ENG","SR",2007,75),
+  p("Joe Worsley","ENG","FL",2007,74),
+  p("Charlie Hodgson","ENG","FH",2007,76),
+  p("Mark Cueto","ENG","WG",2007,77),
+  p("Alex Corbisiero","ENG","LP",2010,79),
+  p("Lee Mears","ENG","HK",2010,68),
+  p("Tom Croft","ENG","FL",2010,79),
+  p("Nick Easter","ENG","N8",2010,77),
+  p("Jonny Wilkinson","ENG","FH",2010,84),
+  p("Chris Ashton","ENG","WG",2010,82),
+  p("Riki Flutey","ENG","CE",2010,75),
+  p("Delon Armitage","ENG","FB",2010,74),
+  p("Dewi Morris","ENG","SH",1993,76),
+  p("Tim Payne","ENG","LP",2009,70),
+  p("Lee Mears","ENG","HK",2009,69),
+  p("Dan Cole","ENG","TP",2009,82),
+  p("Steve Borthwick","ENG","SR",2009,75),
+  p("Nick Easter","ENG","N8",2009,77),
+  p("Danny Care","ENG","SH",2009,79),
+  p("Jason Leonard","ENG","LP",2001,85),
+  p("Phil Greening","ENG","HK",2001,72),
+  p("Phil Vickery","ENG","TP",2001,82),
+  p("Martin Johnson","ENG","SR",2001,90),
+  p("Richard Hill","ENG","FL",2001,85),
+  p("Lawrence Dallaglio","ENG","N8",2001,87),
+  p("Matt Dawson","ENG","SH",2001,84),
+  p("Victor Ubogu","ENG","TP",1997,73),
+  p("Terry Kingston","IRE","HK",1994,69),
+  p("Peter Clohessy","IRE","TP",1994,74),
+  p("Neil Francis","IRE","SR",1994,73),
+  p("Anthony Foley","IRE","N8",1994,74),
+  p("Michael Bradley","IRE","SH",1994,70),
+  p("Eric Elwood","IRE","FH",1994,75),
+  p("Conor O'Shea","IRE","FB",1994,73),
+  p("Paul Wallace","IRE","TP",1996,76),
+  p("Paddy Johns","IRE","SR",1996,72),
+  p("Denis McBride","IRE","FL",1996,70),
+  p("Anthony Foley","IRE","N8",1996,74),
+  p("Niall Hogan","IRE","SH",1996,68),
+  p("David Humphreys","IRE","FH",1996,74),
+  p("Denis Hickie","IRE","WG",1996,73),
+  p("Brian O'Driscoll","IRE","CE",1996,72),
+  p("Keith Wood","IRE","HK",2002,85),
+  p("John Hayes","IRE","TP",2002,79),
+  p("Mick Galwey","IRE","SR",2002,73),
+  p("David Wallace","IRE","FL",2002,80),
+  p("Anthony Foley","IRE","N8",2002,79),
+  p("Peter Stringer","IRE","SH",2002,82),
+  p("David Humphreys","IRE","FH",2002,80),
+    p("John Hayes","IRE","TP",2004,79),
+  p("Anthony Foley","IRE","N8",2004,79),
+  p("Peter Stringer","IRE","SH",2004,82),
+  p("David Humphreys","IRE","FH",2004,80),
+  p("Paul O'Connell","IRE","SR",2007,89),
+  p("Stephen Ferris","IRE","FL",2007,80),
+  p("Peter Stringer","IRE","SH",2007,80),
+  p("Girvan Dempsey","IRE","FB",2007,74),
+  p("Rory Best","IRE","HK",2011,82),
+  p("Paul O'Connell","IRE","SR",2011,89),
+  p("Conor Murray","IRE","SH",2011,80),
+  p("Nick Popplewell","IRE","LP",2000,74),
+  p("David Wallace","IRE","FL",2000,78),
+  p("Peter Stringer","IRE","SH",2000,78),
+  p("David Humphreys","IRE","FH",2000,79),
+  p("Conor O'Shea","IRE","FB",2000,74),
+  p("Reggie Corrigan","IRE","LP",2003,72),
+  p("Malcolm O'Kelly","IRE","SR",2003,79),
+  p("Brian O'Driscoll","IRE","CE",2003,90),
+  p("Girvan Dempsey","IRE","FB",2003,76),
+  p("Peter Clohessy","IRE","LP",1997,76),
+  p("Keith Wood","IRE","HK",1997,86),
+  p("David Wallace","IRE","FL",1997,77),
+  p("Victor Costello","IRE","N8",1997,74),
+  p("Niall Hogan","IRE","SH",1997,67),
+  p("David Humphreys","IRE","FH",1997,77),
+  p("Denis Hickie","IRE","WG",1997,76),
+  p("Brian O'Driscoll","IRE","CE",1997,78),
+  p("Conor O'Shea","IRE","FB",1997,75),
+  p("Cian Healy","IRE","LP",2009,82),
+  p("Rory Best","IRE","HK",2009,82),
+  p("Nick Popplewell","IRE","LP",1993,78),
+  p("Terry Kingston","IRE","HK",1993,69),
+  p("Peter Clohessy","IRE","TP",1993,73),
+  p("Denis McBride","IRE","FL",1993,71),
+  p("Brian Robinson","IRE","N8",1993,70),
+  p("Simon Geoghegan","IRE","WG",1993,77),
+  p("Maurice Field","IRE","CE",1993,69),
+  p("Jim Staples","IRE","FB",1993,70),
+  p("Marcus Horan","IRE","LP",2006,76),
+  p("Jerry Flannery","IRE","HK",2006,78),
+  p("John Hayes","IRE","TP",2006,78),
+  p("Simon Easterby","IRE","FL",2006,77),
+  p("Denis Leamy","IRE","N8",2006,75),
+  p("Ronan O'Gara","IRE","FH",2006,88),
+  p("Shane Horgan","IRE","WG",2006,81),
+  p("Geordan Murphy","IRE","FB",2006,78),
+  p("Cian Healy","IRE","LP",2013,84),
+  p("Sean Cronin","IRE","HK",2013,72),
+  p("Mike Ross","IRE","TP",2013,80),
+  p("Jamie Heaslip","IRE","N8",2013,86),
+  p("Johnny Sexton","IRE","FH",2013,90),
+  p("Tommy Bowe","IRE","WG",2013,82),
+  p("Brian O'Driscoll","IRE","CE",2013,89),
+  p("Rob Kearney","IRE","FB",2013,84),
+  p("Peter Stringer","IRE","SH",1998,78),
+  p("Garin Jenkins","WAL","HK",1991,69),
+  p("Emyr Lewis","WAL","FL",1991,70),
+    p("Neil Jenkins","WAL","FH",1991,76),
+  p("Scott Gibbs","WAL","CE",1991,74),
+  p("Garin Jenkins","WAL","HK",1994,71),
+  p("John Davies","WAL","TP",1994,70),
+  p("Phil Davies","WAL","N8",1994,71),
+  p("Neil Jenkins","WAL","FH",1994,80),
+  p("Scott Gibbs","WAL","CE",1994,76),
+  p("Wayne Proctor","WAL","FB",1994,70),
+  p("John Davies","WAL","TP",1996,70),
+  p("Gareth Llewellyn","WAL","SR",1996,72),
+  p("Gwyn Jones","WAL","FL",1996,72),
+  p("Scott Quinnell","WAL","N8",1996,78),
+  p("Robert Howley","WAL","SH",1996,82),
+  p("Ieuan Evans","WAL","WG",1996,80),
+  p("Wayne Proctor","WAL","FB",1996,70),
+  p("Robin McBryde","WAL","HK",2002,71),
+  p("Dai Young","WAL","TP",2002,76),
+  p("Scott Quinnell","WAL","N8",2002,81),
+  p("Neil Jenkins","WAL","FH",2002,81),
+  p("Gareth Thomas","WAL","WG",2002,81),
+  p("Mark Taylor","WAL","CE",2002,72),
+    p("Matthew Rees","WAL","HK",2011,78),
+  p("Adam Jones","WAL","TP",2011,84),
+  p("Toby Faletau","WAL","N8",2011,83),
+  p("Mike Phillips","WAL","SH",2011,84),
+  p("Rhys Priestland","WAL","FH",2011,77),
+  p("Jamie Roberts","WAL","CE",2011,86),
+  p("Leigh Halfpenny","WAL","FB",2011,86),
+  p("Ricky Evans","WAL","LP",1995,68),
+  p("Gareth Llewellyn","WAL","SR",1995,73),
+  p("Emyr Lewis","WAL","FL",1995,71),
+  p("Phil Davies","WAL","N8",1995,70),
+  p("Rupert Moon","WAL","SH",1995,68),
+  p("Ieuan Evans","WAL","WG",1995,81),
+  p("Scott Gibbs","WAL","CE",1995,80),
+  p("Iestyn Thomas","WAL","LP",2001,71),
+  p("Gareth Llewellyn","WAL","SR",2001,71),
+  p("Colin Charvis","WAL","FL",2001,79),
+  p("Robert Howley","WAL","SH",2001,81),
+  p("Gareth Thomas","WAL","WG",2001,82),
+  p("Mark Taylor","WAL","CE",2001,73),
+  p("Shane Howarth","WAL","FB",2001,75),
+  p("Paul James","WAL","LP",2012,72),
+  p("Gethin Jenkins","WAL","LP",2009,85),
+  p("Adam Jones","WAL","TP",2009,85),
+  p("Martyn Williams","WAL","FL",2009,84),
+  p("Mike Phillips","WAL","SH",2009,83),
+  p("Stephen Jones","WAL","FH",2009,82),
+  p("Shane Williams","WAL","WG",2009,93),
+  p("Iestyn Thomas","WAL","LP",2000,70),
+  p("Robin McBryde","WAL","HK",2000,71),
+  p("Craig Quinnell","WAL","SR",2000,74),
+  p("Colin Charvis","WAL","FL",2000,78),
+  p("Scott Quinnell","WAL","N8",2000,82),
+  p("Robert Howley","WAL","SH",2000,80),
+  p("Neil Jenkins","WAL","FH",2000,82),
+  p("Shane Howarth","WAL","FB",2000,76),
+  p("Gethin Jenkins","WAL","LP",2007,85),
+  p("Matthew Rees","WAL","HK",2007,79),
+  p("Ian Gough","WAL","SR",2007,73),
+  p("Martyn Williams","WAL","FL",2007,84),
+  p("Ryan Jones","WAL","N8",2007,81),
+  p("Tom Shanklin","WAL","CE",2007,79),
+  p("Lee Byrne","WAL","FB",2007,81),
+  p("Peter Rogers","WAL","LP",1999,73),
+  p("Garin Jenkins","WAL","HK",1999,70),
+    p("Colin Charvis","WAL","FL",1999,77),
+  p("Robert Howley","WAL","SH",1999,80),
+  p("Gareth Thomas","WAL","WG",1999,82),
+  p("Christian Loader","WAL","LP",1997,66),
+  p("Jonathan Humphreys","WAL","HK",1997,72),
+  p("Adam Jones","WAL","TP",1997,73),
+  p("Gareth Llewellyn","WAL","SR",1997,70),
+  p("Scott Quinnell","WAL","N8",1997,79),
+  p("Arwel Thomas","WAL","FH",1997,72),
+  p("Gareth Thomas","WAL","WG",1997,79),
+  p("Kevin Morgan","WAL","FB",1997,71),
+  p("Kenny Milne","SCO","HK",1991,73),
+  p("Paul Burnell","SCO","TP",1991,72),
+  p("Gary Armstrong","SCO","SH",1991,80),
+  p("Gavin Bulloch","SCO","HK",2000,72),
+  p("Mattie Stewart","SCO","TP",2000,69),
+  p("Simon Taylor","SCO","N8",2000,77),
+  p("Glenn Metcalfe","SCO","FB",2000,74),
+  p("Gordon Bulloch","SCO","HK",2003,74),
+  p("Scott Murray","SCO","SR",2003,77),
+  p("Budge Pountney","SCO","FL",2003,72),
+  p("Simon Taylor","SCO","N8",2003,79),
+  p("Gregor Townsend","SCO","FH",2003,78),
+  p("Sean Lamont","SCO","WG",2003,72),
+  p("Andy Henderson","SCO","CE",2003,68),
+  p("Chris Paterson","SCO","FB",2003,80),
+  p("Gordon Bulloch","SCO","HK",2005,73),
+    p("Scott Murray","SCO","SR",2005,77),
+  p("Jason White","SCO","FL",2005,78),
+  p("Simon Taylor","SCO","N8",2005,78),
+  p("Chris Cusiter","SCO","SH",2005,75),
+  p("Dan Parks","SCO","FH",2005,73),
+  p("Chris Paterson","SCO","FB",2005,80),
+  p("Dougie Hall","SCO","HK",2008,68),
+  p("Nathan Hines","SCO","SR",2008,76),
+  p("Johnnie Beattie","SCO","N8",2008,73),
+  p("Graeme Morrison","SCO","CE",2008,70),
+  p("Hugo Southwell","SCO","FB",2008,72),
+  p("Tom Smith","SCO","LP",1999,79),
+  p("Scott Murray","SCO","SR",1999,78),
+  p("Budge Pountney","SCO","FL",1999,74),
+  p("Eric Peters","SCO","N8",1999,73),
+  p("Tom Smith","SCO","LP",2002,78),
+  p("Bruce Douglas","SCO","TP",2002,67),
+  p("Budge Pountney","SCO","FL",2002,73),
+  p("Bryan Redpath","SCO","SH",2002,74),
+  p("Gregor Townsend","SCO","FH",2002,79),
+  p("Kenny Logan","SCO","WG",2002,73),
+  p("Andy Henderson","SCO","CE",2002,67),
+  p("Glenn Metcalfe","SCO","FB",2002,73),
+  p("Tom Smith","SCO","LP",2004,78),
+  p("Bruce Douglas","SCO","TP",2004,67),
+  p("Jason White","SCO","FL",2004,77),
+  p("Simon Taylor","SCO","N8",2004,78),
+  p("Bryan Redpath","SCO","SH",2004,74),
+  p("Gregor Townsend","SCO","FH",2004,78),
+  p("Sean Lamont","SCO","WG",2004,73),
+  p("Allan Jacobsen","SCO","LP",2007,71),
+  p("Gavin Kerr","SCO","TP",2007,69),
+  p("Simon Taylor","SCO","N8",2007,78),
+  p("Chris Cusiter","SCO","SH",2007,75),
+  p("Dan Parks","SCO","FH",2007,74),
+  p("Marcus Di Rollo","SCO","CE",2007,68),
+  p("Allan Jacobsen","SCO","LP",2010,70),
+  p("Johnnie Beattie","SCO","N8",2010,73),
+  p("Sean Lamont","SCO","WG",2010,72),
+  p("Rory Lamont","SCO","FB",2010,71),
+  p("Alasdair Dickinson","SCO","LP",2013,70),
+  p("Geoff Cross","SCO","TP",2013,68),
+  p("Richie Gray","SCO","SR",2013,82),
+  p("Ross Rennie","SCO","FL",2013,72),
+  p("David Denton","SCO","N8",2013,74),
+  p("Ruaridh Jackson","SCO","FH",2013,70),
+  p("Matt Scott","SCO","CE",2013,74),
+    p("Dougie Hall","SCO","HK",2006,68),
+  p("Nathan Hines","SCO","SR",2006,76),
+  p("Dan Parks","SCO","FH",2006,73),
+  p("Chris Paterson","SCO","WG",2006,81),
+  p("Marcus Di Rollo","SCO","CE",2006,69),
+  p("Hugo Southwell","SCO","FB",2006,72),
+  p("Allan Jacobsen","SCO","LP",2012,70),
+  p("Ross Ford","SCO","HK",2012,73),
+  p("Greig Laidlaw","SCO","SH",2012,79),
+  p("Sean Lamont","SCO","WG",2012,72),
+  p("Max Evans","SCO","CE",2012,73),
+  p("Stuart Hogg","SCO","FB",2012,84),
+  p("Alan Watt","SCO","LP",1995,66),
+  p("Kenny Milne","SCO","HK",1995,71),
+  p("Paul Burnell","SCO","TP",1995,70),
+  p("Eric Peters","SCO","N8",1995,72),
+  p("Allan Jacobsen","SCO","LP",2009,71),
+  p("Ross Ford","SCO","HK",2009,72),
+  p("Euan Murray","SCO","TP",2009,79),
+  p("Jim Hamilton","SCO","SR",2009,72),
+  p("John Barclay","SCO","FL",2009,75),
+  p("Mike Blair","SCO","SH",2009,78),
+  p("Simon Danielli","SCO","WG",2009,68),
+  p("Graeme Morrison","SCO","CE",2009,71),
+  p("Jean-François Tordo","FRA","HK",1992,72),
+  p("Marc Cécillon","FRA","N8",1992,75),
+  p("Pierre Berbizier","FRA","SH",1992,78),
+  p("Didier Camberabero","FRA","FH",1992,76),
+  p("Philippe Saint-André","FRA","WG",1992,80),
+  p("Philippe Sella","FRA","CE",1992,85),
+  p("Serge Blanco","FRA","FB",1992,88),
+  p("Jean-François Tordo","FRA","HK",1991,71),
+  p("Philippe Gallart","FRA","TP",1991,71),
+  p("Olivier Roumat","FRA","SR",1991,76),
+  p("Laurent Cabannes","FRA","FL",1991,80),
+  p("Fabien Pelous","FRA","SR",1997,81),
+  p("Christophe Juillet","FRA","N8",1997,73),
+  p("Émile Ntamack","FRA","WG",1997,80),
+  p("Thierry Lacroix","FRA","CE",1997,76),
+  p("Jean-Luc Sadourny","FRA","FB",1997,78),
+  p("Raphaël Ibañez","FRA","HK",2000,81),
+  p("Pieter de Villiers","FRA","TP",2000,76),
+  p("Olivier Magne","FRA","FL",2000,84),
+  p("Imanol Harinordoquy","FRA","N8",2000,79),
+  p("Richard Dourthe","FRA","CE",2000,76),
+  p("Jean-Luc Sadourny","FRA","FB",2000,79),
+  p("Raphaël Ibañez","FRA","HK",2002,81),
+  p("Fabien Pelous","FRA","SR",2002,83),
+  p("Imanol Harinordoquy","FRA","N8",2002,79),
+  p("Raphaël Ibañez","FRA","HK",2006,80),
+  p("Dimitri Yachvili","FRA","SH",2006,81),
+  p("Frédéric Michalak","FRA","FH",2006,79),
+  p("Pepito Elhorga","FRA","FB",2006,70),
+  p("Raphaël Ibañez","FRA","HK",2004,80),
+  p("Pieter de Villiers","FRA","TP",2004,76),
+  p("Serge Betsen","FRA","FL",2004,81),
+  p("Frédéric Michalak","FRA","FH",2004,82),
+  p("Imanol Harinordoquy","FRA","N8",2010,80),
+  p("Aurélien Rougerie","FRA","CE",2010,77),
+  p("Maxime Médard","FRA","FB",2010,79),
+  p("Sylvain Marconnet","FRA","LP",2007,78),
+  p("Pieter de Villiers","FRA","TP",2007,76),
+  p("Lionel Nallet","FRA","SR",2007,79),
+  p("Serge Betsen","FRA","FL",2007,81),
+    p("Sylvain Marconnet","FRA","LP",2008,75),
+  p("Dimitri Yachvili","FRA","SH",2008,81),
+  p("Frédéric Michalak","FRA","FH",2008,79),
+  p("Jefferson Poirot","FRA","LP",2012,73),
+  p("Nicolas Mas","FRA","TP",2012,81),
+  p("Imanol Harinordoquy","FRA","FL",2012,82),
+    p("Yoann Huget","FRA","WG",2012,80),
+  p("Aurélien Rougerie","FRA","CE",2012,77),
+  p("Thomas Domingo","FRA","LP",2011,76),
+  p("William Servat","FRA","HK",2011,81),
+  p("Lionel Nallet","FRA","SR",2011,78),
+  p("Louis Picamoles","FRA","N8",2011,82),
+  p("Morgan Parra","FRA","SH",2011,80),
+  p("François Trinh-Duc","FRA","FH",2011,79),
+  p("Vincent Clerc","FRA","WG",2011,81),
+  p("Christian Califano","FRA","LP",1995,77),
+  p("Jean-Michel Gonzalez","FRA","HK",1995,75),
+  p("Franck Tournaire","FRA","TP",1995,72),
+  p("Christophe Juillet","FRA","N8",1995,73),
+  p("Fabien Galthié","FRA","SH",1995,79),
+    p("Christian Califano","FRA","LP",1999,79),
+  p("Fabien Pelous","FRA","HK",1999,76),
+  p("Pieter de Villiers","FRA","TP",1999,75),
+    p("Imanol Harinordoquy","FRA","N8",1999,76),
+  p("Fabien Galthié","FRA","SH",1999,81),
+  p("Christophe Lamaison","FRA","FH",1999,77),
+  p("Mauro Bergamasco","ITA","FL",2000,75),
+  p("Carlos Nieto","ITA","TP",2004,67),
+  p("Kaine Robertson","ITA","WG",2004,66),
+  p("Leonardo Ghiraldini","ITA","HK",2007,70),
+  p("Martin Castrogiovanni","ITA","TP",2007,80),
+  p("Paul Griffen","ITA","SH",2007,67),
+  p("Andrea Marcato","ITA","FH",2007,67),
+  p("David Bortolussi","ITA","FB",2007,65),
+  p("Leonardo Ghiraldini","ITA","HK",2008,73),
+  p("Martin Castrogiovanni","ITA","TP",2008,81),
+  p("Santiago Dellapè","ITA","SR",2008,72),
+  p("Mauro Bergamasco","ITA","FL",2008,77),
+  p("Mirco Bergamasco","ITA","WG",2008,73),
+  p("Luke McLean","ITA","FB",2008,70),
+  p("Martin Castrogiovanni","ITA","TP",2010,81),
+  p("Alessandro Zanni","ITA","FL",2010,73),
+  p("Sergio Parisse","ITA","N8",2010,83),
+  p("Pablo Canavosio","ITA","SH",2010,65),
+  p("Andrea Marcato","ITA","FH",2010,66),
+  p("Mirco Bergamasco","ITA","WG",2010,72),
+  p("Andrea Masi","ITA","FB",2010,76),
+  p("Andrea Lo Cicero","ITA","LP",2002,73),
+  p("Martin Castrogiovanni","ITA","TP",2002,77),
+  p("Sergio Parisse","ITA","N8",2002,79),
+  p("Alessandro Troncon","ITA","SH",2002,74),
+  p("Cristian Stoica","ITA","CE",2002,70),
+  p("Massimo Ravazzolo","ITA","FB",2002,65),
+  p("Matías Aguero","ITA","LP",2012,67),
+  p("Quintin Geldenhuys","ITA","SR",2012,72),
+  p("Alberto Sgarbi","ITA","CE",2012,67),
+  p("Andrea Lo Cicero","ITA","LP",2005,75),
+  p("Fabio Ongaro","ITA","HK",2005,70),
+  p("Aaron Persico","ITA","FL",2005,68),
+  p("Sergio Parisse","ITA","N8",2005,82),
+  p("Alessandro Troncon","ITA","SH",2005,76),
+  p("Ramiro Pez","ITA","FH",2005,71),
+  p("Cristian Stoica","ITA","CE",2005,71),
+  p("Gert Peens","ITA","FB",2005,68),
+  p("Salvatore Perugini","ITA","LP",2009,70),
+  p("Leonardo Ghiraldini","ITA","HK",2009,74),
+  p("Marco Bortolami","ITA","SR",2009,72),
+  p("Sergio Parisse","ITA","N8",2009,84),
+  p("Pablo Canavosio","ITA","SH",2009,66),
+  p("Andrea Marcato","ITA","FH",2009,67),
+  p("Gonzalo Canale","ITA","CE",2009,72),
+  p("Matías Aguero","ITA","LP",2011,68),
+  p("Leonardo Ghiraldini","ITA","HK",2011,74),
+  p("Lorenzo Cittadini","ITA","TP",2011,70),
+  p("Sergio Parisse","ITA","N8",2011,83),
+  p("Edoardo Gori","ITA","SH",2011,69),
+  p("Luciano Orquera","ITA","FH",2011,70),
+  p("Giovanbattista Venditti","ITA","WG",2011,70),
+  p("Andrea Lovotti","ITA","LP",2013,68),
+  p("Leonardo Ghiraldini","ITA","HK",2013,75),
+  p("Martin Castrogiovanni","ITA","TP",2013,80),
+  p("Alessandro Zanni","ITA","SR",2013,73),
+  p("Mauro Bergamasco","ITA","FL",2013,73),
+  p("Sergio Parisse","ITA","N8",2013,88),
+  p("Edoardo Gori","ITA","SH",2013,69),
+  p("Tommaso Benvenuti","ITA","WG",2013,73),
+  p("Michele Campagnaro","ITA","CE",2013,76),
+  p("Rob Saunders","IRE","SH",1992,69),
+];
+PLAYERS_AUTO.forEach(pl=> PLAYERS.push(pl));
+
+/* gap fixes after dupe removal */
+const PLAYERS_FIX = [
+  p("Marcus Smith","ENG","FH",2018,80),         // ENG 2018 missing FH
+  p("Jonny May","ENG","WG",2023,83),             // ENG 2023 missing WG
+  p("Henry Arundell","ENG","FB",2024,79),        // ENG 2024 missing FB (Steward already WG)
+  p("Jack Nowell","ENG","WG",2004,72),           // ENG 2004 missing WG (Robinson already FB)
+  p("Jack Conan","IRE","N8",2018,83),            // IRE 2018 missing N8 (Stander already FL)
+  p("Geordan Murphy","IRE","FB",2002,75),        // IRE 2002 missing FB
+  p("Scott Quinnell","WAL","N8",1991,78),        // WAL 1991 missing N8
+  p("Dai Young","WAL","TP",1999,74),             // WAL 1999 missing TP
+  p("Sonny Parker","WAL","FB",2002,73),          // WAL 2002 missing FB (Taylor already CE)
+  p("Colin Charvis","WAL","FL",1992,73),         // WAL 1992 missing FL
+  p("Dafydd James","WAL","WG",2003,74),          // WAL 2003 missing WG (Thomas already FB)
+  p("Ryan Jones","WAL","N8",2016,78),            // WAL 2016 missing N8 (Faletau already FL)
+  p("Tom Smith","SCO","TP",2005,76),             // SCO 2005 missing TP
+  p("Tom Smith","SCO","LP",2006,76),             // SCO 2006 missing LP
+  p("Gérald Merceron","FRA","FH",1996,74),       // FRA 1996 missing FH
+  p("Clément Poitrenaud","FRA","FB",2007,74),    // FRA 2007 missing FB
+  p("Olivier Roumat","FRA","SR",1998,75),        // FRA 1998 missing SR (Pelous already HK)
+  p("Frédéric Michalak","FRA","SH",2012,72),     // FRA 2012 missing SH (Parra already FH)
+  p("Philippe Sella","FRA","CE",1995,82),        // FRA 1995 missing CE
+  p("Olivier Merle","FRA","SR",1999,75),         // FRA 1999 missing SR (Pelous already HK)
+  p("Mattia Bellini","ITA","WG",2024,72),        // ITA 2024 missing WG (Capuozzo already FB)
+];
+PLAYERS_FIX.forEach(pl=> PLAYERS.push(pl));
+
+/* ===== 2026 Six Nations ===== */
+const PLAYERS_2026 = [
+  // IRELAND 2026
+  p("Andrew Porter","IRE","LP",2026,90), p("Dan Sheehan","IRE","HK",2026,90), p("Tadhg Furlong","IRE","TP",2026,89),
+  p("Joe McCarthy","IRE","SR",2026,85), p("Tadhg Beirne","IRE","SR",2026,88),
+  p("Peter O'Mahony","IRE","FL",2026,82), p("Josh van der Flier","IRE","FL",2026,89), p("Caelan Doris","IRE","N8",2026,90),
+  p("Jamison Gibson-Park","IRE","SH",2026,90), p("Jack Crowley","IRE","FH",2026,84),
+  p("Mack Hansen","IRE","WG",2026,85), p("Bundee Aki","IRE","CE",2026,86), p("Garry Ringrose","IRE","CE",2026,87),
+  p("James Lowe","IRE","WG",2026,85), p("Hugo Keenan","IRE","FB",2026,87),
+
+  // FRANCE 2026
+  p("Cyril Baille","FRA","LP",2026,87), p("Julien Marchand","FRA","HK",2026,85), p("Uini Atonio","FRA","TP",2026,85),
+  p("Thibaud Flament","FRA","SR",2026,83), p("Paul Willemse","FRA","SR",2026,83),
+  p("François Cros","FRA","FL",2026,85), p("Charles Ollivon","FRA","FL",2026,85), p("Grégory Alldritt","FRA","N8",2026,90),
+  p("Antoine Dupont","FRA","SH",2026,96), p("Matthieu Jalibert","FRA","FH",2026,87),
+  p("Louis Bielle-Biarrey","FRA","WG",2026,87), p("Gaël Fickou","FRA","CE",2026,84), p("Jonathan Danty","FRA","CE",2026,83),
+  p("Damian Penaud","FRA","WG",2026,89), p("Thomas Ramos","FRA","FB",2026,86),
+
+  // ENGLAND 2026
+  p("Ellis Genge","ENG","LP",2026,88), p("Jamie George","ENG","HK",2026,86), p("Will Stuart","ENG","TP",2026,83),
+  p("Maro Itoje","ENG","SR",2026,92), p("George Martin","ENG","SR",2026,83),
+  p("Tom Curry","ENG","FL",2026,88), p("Ben Earl","ENG","FL",2026,85), p("Billy Vunipola","ENG","N8",2026,82),
+  p("Alex Mitchell","ENG","SH",2026,83), p("Marcus Smith","ENG","FH",2026,84),
+  p("Tommy Freeman","ENG","WG",2026,81), p("Henry Slade","ENG","CE",2026,81), p("Manu Tuilagi","ENG","CE",2026,83),
+  p("Jonny May","ENG","WG",2026,82), p("Freddie Steward","ENG","FB",2026,84),
+
+  // SCOTLAND 2026
+  p("Pierre Schoeman","SCO","LP",2026,83), p("Ewan Ashman","SCO","HK",2026,79), p("Zander Fagerson","SCO","TP",2026,84),
+  p("Grant Gilchrist","SCO","SR",2026,79), p("Scott Cummings","SCO","SR",2026,79),
+  p("Rory Darge","SCO","FL",2026,84), p("Jamie Ritchie","SCO","FL",2026,82), p("Matt Fagerson","SCO","N8",2026,81),
+  p("Ben White","SCO","SH",2026,80), p("Finn Russell","SCO","FH",2026,89),
+  p("Duhan van der Merwe","SCO","WG",2026,87), p("Sione Tuipulotu","SCO","CE",2026,84), p("Huw Jones","SCO","CE",2026,82),
+  p("Kyle Rowe","SCO","WG",2026,80), p("Blair Kinghorn","SCO","FB",2026,83),
+
+  // WALES 2026
+  p("Gareth Thomas","WAL","LP",2026,74), p("Dewi Lake","WAL","HK",2026,78), p("Tomas Francis","WAL","TP",2026,77),
+  p("Adam Beard","WAL","SR",2026,79), p("Ben Carter","WAL","SR",2026,77),
+  p("Jac Morgan","WAL","FL",2026,81), p("Tommy Reffell","WAL","FL",2026,79), p("Taulupe Faletau","WAL","N8",2026,82),
+  p("Tomos Williams","WAL","SH",2026,80), p("Sam Costelow","WAL","FH",2026,76),
+  p("Rio Dyer","WAL","WG",2026,79), p("Mason Grady","WAL","CE",2026,78), p("Ben Thomas","WAL","CE",2026,77),
+  p("Louis Rees-Zammit","WAL","WG",2026,82), p("Liam Williams","WAL","FB",2026,81),
+
+  // ITALY 2026
+  p("Danilo Fischetti","ITA","LP",2026,74), p("Gianmarco Lucchesi","ITA","HK",2026,75), p("Marco Riccioni","ITA","TP",2026,74),
+  p("Federico Ruzza","ITA","SR",2026,76), p("Niccolò Cannone","ITA","SR",2026,77),
+  p("Michele Lamaro","ITA","FL",2026,82), p("Sebastian Negri","ITA","FL",2026,79), p("Lorenzo Cannone","ITA","N8",2026,79),
+  p("Alessandro Garbisi","ITA","SH",2026,75), p("Paolo Garbisi","ITA","FH",2026,83),
+  p("Toa Halafihi","ITA","WG",2026,76), p("Juan Ignacio Brex","ITA","CE",2026,80), p("Tommaso Menoncello","ITA","CE",2026,83),
+  p("Monty Ioane","ITA","WG",2026,78), p("Ange Capuozzo","ITA","FB",2026,86),
+];
+PLAYERS_2026.forEach(pl=> PLAYERS.push(pl));
+
+/* ===== 2025 Six Nations ===== */
+const PLAYERS_2025 = [
+  // IRELAND 2025 — won the 2025 Six Nations
+  p("Andrew Porter","IRE","LP",2025,91), p("Dan Sheehan","IRE","HK",2025,90), p("Tadhg Furlong","IRE","TP",2025,90),
+  p("Joe McCarthy","IRE","SR",2025,84), p("Tadhg Beirne","IRE","SR",2025,89),
+  p("Peter O'Mahony","IRE","FL",2025,83), p("Josh van der Flier","IRE","FL",2025,90), p("Caelan Doris","IRE","N8",2025,90),
+  p("Jamison Gibson-Park","IRE","SH",2025,90), p("Jack Crowley","IRE","FH",2025,83),
+  p("Mack Hansen","IRE","WG",2025,85), p("Bundee Aki","IRE","CE",2025,87), p("Garry Ringrose","IRE","CE",2025,87),
+  p("James Lowe","IRE","WG",2025,86), p("Hugo Keenan","IRE","FB",2025,87),
+
+  // FRANCE 2025
+  p("Cyril Baille","FRA","LP",2025,88), p("Julien Marchand","FRA","HK",2025,86), p("Uini Atonio","FRA","TP",2025,85),
+  p("Thibaud Flament","FRA","SR",2025,83), p("Paul Willemse","FRA","SR",2025,82),
+  p("François Cros","FRA","FL",2025,84), p("Charles Ollivon","FRA","FL",2025,86), p("Grégory Alldritt","FRA","N8",2025,91),
+  p("Antoine Dupont","FRA","SH",2025,96), p("Matthieu Jalibert","FRA","FH",2025,86),
+  p("Louis Bielle-Biarrey","FRA","WG",2025,86), p("Gaël Fickou","FRA","CE",2025,84), p("Jonathan Danty","FRA","CE",2025,83),
+  p("Damian Penaud","FRA","WG",2025,89), p("Thomas Ramos","FRA","FB",2025,86),
+
+  // ENGLAND 2025
+  p("Ellis Genge","ENG","LP",2025,89), p("Jamie George","ENG","HK",2025,86), p("Will Stuart","ENG","TP",2025,83),
+  p("Maro Itoje","ENG","SR",2025,92), p("George Martin","ENG","SR",2025,82),
+  p("Tom Curry","ENG","FL",2025,88), p("Ben Earl","ENG","FL",2025,84), p("Billy Vunipola","ENG","N8",2025,82),
+  p("Alex Mitchell","ENG","SH",2025,83), p("Marcus Smith","ENG","FH",2025,84),
+  p("Tommy Freeman","ENG","WG",2025,81), p("Henry Slade","ENG","CE",2025,81), p("Manu Tuilagi","ENG","CE",2025,83),
+  p("Jonny May","ENG","WG",2025,82), p("Freddie Steward","ENG","FB",2025,84),
+
+  // SCOTLAND 2025
+  p("Pierre Schoeman","SCO","LP",2025,83), p("Ewan Ashman","SCO","HK",2025,78), p("Zander Fagerson","SCO","TP",2025,85),
+  p("Grant Gilchrist","SCO","SR",2025,79), p("Scott Cummings","SCO","SR",2025,78),
+  p("Rory Darge","SCO","FL",2025,84), p("Jamie Ritchie","SCO","FL",2025,82), p("Matt Fagerson","SCO","N8",2025,81),
+  p("Ben White","SCO","SH",2025,80), p("Finn Russell","SCO","FH",2025,89),
+  p("Duhan van der Merwe","SCO","WG",2025,87), p("Sione Tuipulotu","SCO","CE",2025,83), p("Huw Jones","SCO","CE",2025,82),
+  p("Kyle Rowe","SCO","WG",2025,79), p("Blair Kinghorn","SCO","FB",2025,83),
+
+  // WALES 2025
+  p("Gareth Thomas","WAL","LP",2025,73), p("Dewi Lake","WAL","HK",2025,77), p("Tomas Francis","WAL","TP",2025,77),
+  p("Adam Beard","WAL","SR",2025,78), p("Ben Carter","WAL","SR",2025,76),
+  p("Jac Morgan","WAL","FL",2025,81), p("Tommy Reffell","WAL","FL",2025,79), p("Taulupe Faletau","WAL","N8",2025,83),
+  p("Tomos Williams","WAL","SH",2025,80), p("Sam Costelow","WAL","FH",2025,76),
+  p("Rio Dyer","WAL","WG",2025,78), p("Mason Grady","WAL","CE",2025,77), p("Ben Thomas","WAL","CE",2025,76),
+  p("Louis Rees-Zammit","WAL","WG",2025,81), p("Liam Williams","WAL","FB",2025,81),
+
+  // ITALY 2025
+  p("Danilo Fischetti","ITA","LP",2025,73), p("Gianmarco Lucchesi","ITA","HK",2025,75), p("Marco Riccioni","ITA","TP",2025,73),
+  p("Federico Ruzza","ITA","SR",2025,75), p("Niccolò Cannone","ITA","SR",2025,77),
+  p("Michele Lamaro","ITA","FL",2025,82), p("Sebastian Negri","ITA","FL",2025,78), p("Lorenzo Cannone","ITA","N8",2025,78),
+  p("Alessandro Garbisi","ITA","SH",2025,74), p("Paolo Garbisi","ITA","FH",2025,82),
+  p("Monty Ioane","ITA","WG",2025,77), p("Juan Ignacio Brex","ITA","CE",2025,80), p("Tommaso Menoncello","ITA","CE",2025,83),
+  p("Toa Halafihi","ITA","WG",2025,75), p("Ange Capuozzo","ITA","FB",2025,86),
+];
+PLAYERS_2025.forEach(pl=> PLAYERS.push(pl));
+
+PLAYERS.forEach((pl,i)=>pl.id=i);
+
+
+/* ============ GAME ============ */
+(function(){
+  "use strict";
+  const $=s=>document.querySelector(s);
+  const pitchEl=$("#pitch");
+
+  const NAT={
+    ENG:{name:"England",col:"var(--eng)",txt:"#0a0e12"},
+    IRE:{name:"Ireland",col:"var(--ire)",txt:"#fff"},
+    SCO:{name:"Scotland",col:"var(--sco)",txt:"#fff"},
+    WAL:{name:"Wales",col:"var(--wal)",txt:"#fff"},
+    FRA:{name:"France",col:"var(--fra)",txt:"#fff"},
+    ITA:{name:"Italy",col:"var(--ita)",txt:"#fff"},
+  };
+
+  const COORDS={LP:[28,72],HK:[50,74],TP:[72,72],SR1:[32,62],SR2:[68,62],
+    FL1:[18,53],FL2:[82,53],N8:[50,53],SH:[36,42],FH:[64,42],
+    WG1:[10,22],CE1:[34,27],CE2:[66,27],WG2:[90,22],FB:[50,13]};
+
+  const POS_SHORT={LP:"1",HK:"2",TP:"3",SR1:"4",SR2:"5",FL1:"6",FL2:"7",N8:"8",
+    SH:"9",FH:"10",WG1:"11",CE1:"12",CE2:"13",WG2:"14",FB:"15"};
+  const POS_TINY={LP:"LP",HK:"HK",TP:"TP",SR1:"LK",SR2:"LK",FL1:"FL",FL2:"FL",N8:"N8",
+    SH:"SH",FH:"FH",WG1:"WG",CE1:"CE",CE2:"CE",WG2:"WG",FB:"FB"};
+
+  // unit groups for the squad-ratings panel
+  const UNITS=[
+    {id:"front",  name:"Front Row",   ico:"🦣", slots:["LP","HK","TP"]},
+    {id:"second", name:"Second Rows", ico:"🗼", slots:["SR1","SR2"]},
+    {id:"back",   name:"Back Row",    ico:"⚙️", slots:["FL1","FL2","N8"]},
+    {id:"half",   name:"9 & 10",      ico:"🎯", slots:["SH","FH"]},
+    {id:"centre", name:"Centres",     ico:"💥", slots:["CE1","CE2"]},
+    {id:"back3",  name:"Back 3",      ico:"⚡", slots:["WG1","WG2","FB"]},
+  ];
+
+  // state
+  const filled={}; const usedNames=new Set();
+  // read settings from URL
+  const _p = new URLSearchParams(window.location.search);
+  const SETTINGS = {
+    rerolls:     parseInt(_p.get('rerolls') ?? '2', 10),
+    showRatings: (_p.get('showRatings') ?? '1') !== '0',
+    ratingType:  _p.get('ratingType') ?? 'season',
+    diff:        _p.get('diff') ?? 'normal',
+  };
+
+  let rerolls = SETTINGS.rerolls;
+  let currentDraw=null; // {nat, year}
+
+  /* ---- build pitch ---- */
+  POSITIONS.forEach(pos=>{
+    const c=COORDS[pos.id];
+    const b=document.createElement("button");
+    b.className="shirt empty"; b.dataset.slot=pos.id;
+    b.style.left=c[0]+"%"; b.style.top=c[1]+"%";
+    b.setAttribute("aria-label",pos.name+" — empty");
+    b.innerHTML=shirtInner(pos,null);
+    b.addEventListener("click",()=>{});
+    pitchEl.appendChild(b);
+  });
+
+  function shirtInner(pos,pl){
+    return `<div class="ring">${(pl && SETTINGS.showRatings)?`<span class="rt">${pl.rating}</span>`:''}<span class="pos">${POS_SHORT[pos.id]}</span></div>
+      <div class="lbl">${pl? pl.name.split(' ').slice(-1)[0] : pos.name.replace(/(Loosehead |Tighthead |Inside |Outside |Blindside |Openside |Left |Right )/,'')}</div>
+      ${pl?`<div class="sub">'${String(pl.seasonDrawn).slice(2)} ${pl.nat}</div>`:''}`;
+  }
+
+  /* ============ FLOW ============ */
+  function rateTier(r){return r>=90?"t1":r>=84?"t2":r>=76?"t3":r>=66?"t4":"t5";}
+
+  // Get all unique nation+year combos that have at least one player for a remaining empty slot
+  function availableDraws(){
+    const emptySlots=POSITIONS.filter(p=>!filled[p.id]);
+    const neededPos=new Set(emptySlots.flatMap(s=>POS_ELIGIBLE[s.id]));
+    const combos=new Set();
+    PLAYERS.forEach(p=>{
+      if(neededPos.has(p.pos) && !usedNames.has(p.name)) combos.add(p.nat+"|"+p.year);
+    });
+    return [...combos];
+  }
+
+  // SPIN — pick a random nation+year, animate, then show squad
+  function doSpin(){
+    const draws=availableDraws();
+    if(!draws.length){ idleStage(); return; }
+
+    const natKeys=Object.keys(NAT);
+    const allYears=[...new Set(PLAYERS.map(p=>p.year))].sort();
+    const btn=$("#spinBtn"); if(btn) btn.disabled=true;
+    const natEl=$("#spinNat"), yearEl=$("#spinYear");
+    let ticks=0;
+    const iv=setInterval(()=>{
+      if(natEl) natEl.textContent=NAT[natKeys[Math.floor(Math.random()*natKeys.length)]].name;
+      if(yearEl) yearEl.textContent=allYears[Math.floor(Math.random()*allYears.length)];
+      ticks++;
+      if(ticks>18){
+        clearInterval(iv);
+        const key=draws[Math.floor(Math.random()*draws.length)];
+        const [nat,year]=key.split("|");
+        currentDraw={nat,year:parseInt(year,10)};
+        if(natEl){ natEl.textContent=NAT[nat].name; natEl.style.color=NAT[nat].col; }
+        if(yearEl){ yearEl.textContent=currentDraw.year; yearEl.style.color="var(--accent)"; }
+        setTimeout(()=>renderSquad(nat,parseInt(year,10)),400);
+      }
+    },70);
+  }
+
+  function renderSpinStage(){
+    hideDrawPanel();
+    const remaining=15-Object.keys(filled).length;
+    $("#eyebrow").textContent="Draft your squad";
+    $("#headline").textContent=remaining>0?`${remaining} position${remaining===1?'':'s'} left to fill`:"Squad complete";
+    $("#stage").innerHTML=`
+      <div class="spin-zone">
+        <div class="triple">
+          <div class="slotbox" id="spinBox">
+            <div class="cap">Nation &amp; Season</div>
+            <div class="val" id="spinNat" style="font-size:18px;font-weight:800">—</div>
+            <div class="val" id="spinYear" style="font-size:14px;font-weight:700;color:var(--muted)"></div>
+          </div>
+        </div>
+        <button class="spinbtn" id="spinBtn">Draw a nation &amp; year</button>
+        <p class="spin-hint">Each draw reveals a nation's full squad for that season — pick one player to add</p>
+      </div>`;
+    $("#spinBtn").addEventListener("click",doSpin);
+  }
+
+  // POS_ORDER for display grouping
+  const POS_ORDER=["LP","HK","TP","SR","FL","N8","SH","FH","WG","CE","FB"];
+  const POS_LABEL={LP:"Prop",HK:"Hooker",TP:"Prop",SR:"Second Row",FL:"Flanker",N8:"Number 8",SH:"Scrum Half",FH:"Fly Half",WG:"Wing",CE:"Centre",FB:"Fullback"};
+
+  function showDrawPanel(nat,year){
+    const panel=$("#currentDrawPanel");
+    if(!panel) return;
+    const n=NAT[nat];
+    panel.style.display="block";
+    $("#drawNatBadge").textContent=n.name;
+    $("#drawNatBadge").style.background=n.col;
+    $("#drawNatBadge").style.color=n.txt||"#fff";
+    $("#drawYearBadge").textContent=year;
+  }
+  function hideDrawPanel(){
+    const panel=$("#currentDrawPanel");
+    if(panel) panel.style.display="none";
+  }
+
+  function renderSquad(nat,year,sortBy='rating'){
+    showDrawPanel(nat,year);
+    const n=NAT[nat];
+    const allSquad=PLAYERS.filter(p=>p.nat===nat&&p.year===year);
+    const squad=allSquad.slice().sort(sortBy==='rating'
+      ? (a,b)=>b.rating-a.rating
+      : (a,b)=>POS_ORDER.indexOf(a.pos)-POS_ORDER.indexOf(b.pos));
+    const emptySlots=POSITIONS.filter(p=>!filled[p.id]);
+    const emptyPosTags=new Set(emptySlots.flatMap(s=>POS_ELIGIBLE[s.id]));
+
+    $("#eyebrow").textContent=`${n.name} · ${year}`;
+    $("#headline").textContent="Pick a player for your squad";
+
+    // Build a map of name -> all positions they've ever played
+    const allPositions={};
+    PLAYERS.forEach(p=>{
+      if(!allPositions[p.name]) allPositions[p.name]=new Set();
+      allPositions[p.name].add(p.pos);
+    });
+
+    const cards=squad.map(pl=>{
+      const eligible=emptyPosTags.has(pl.pos)&&!usedNames.has(pl.name);
+      const positions=[...allPositions[pl.name]].map(pos=>POS_LABEL[pos]||pos).join(' · ');
+      // get display rating — prime = career best across all seasons
+      const displayRating = SETTINGS.ratingType === 'prime'
+        ? Math.max(...PLAYERS.filter(p => p.name === pl.name).map(p => p.rating))
+        : pl.rating;
+      const rateHtml = SETTINGS.showRatings
+        ? `<span class="rate ${rateTier(displayRating)}">${displayRating}</span>`
+        : `<span class="rate" style="color:var(--muted2);font-size:14px">—</span>`;
+      return `<button class="opt squad-opt" data-pid="${pl.id}" ${!eligible?'disabled':''} title="${!eligible?(usedNames.has(pl.name)?'Already in squad':'No empty slot for this position'):''}">
+        <span class="dot" style="background:${n.col}"></span>
+        <span class="nm"><b>${pl.name}</b><span>${positions}</span></span>
+        ${rateHtml}
+      </button>`;
+    }).join("");
+
+    $("#stage").innerHTML=`
+      <div class="pick-zone" style="width:100%;max-width:520px;margin-top:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="display:inline-flex;align-items:center;gap:7px;padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;background:${n.col};color:${n.txt||'#fff'}">${n.name}</span>
+            <span style="padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(255,255,255,.06);color:var(--ink)">${year}</span>
+          </div>
+          <div style="display:flex;gap:4px">
+            <button class="ghost sort-btn" id="sortRating" style="${sortBy==='rating'?'border-color:var(--accent);color:var(--ink)':''}">Rating</button>
+            <button class="ghost sort-btn" id="sortPos" style="${sortBy==='pos'?'border-color:var(--accent);color:var(--ink)':''}">Position</button>
+          </div>
+        </div>
+        <div class="opts">${cards}</div>
+        <div class="pick-actions" style="margin-top:14px;display:flex;gap:10px;justify-content:center">
+          <button class="ghost" id="redrawBtn" ${rerolls<=0?'disabled':''}>↻ Redraw (${rerolls} left)</button>
+          <button class="ghost" id="backToSpinBtn">← New draw</button>
+        </div>
+      </div>`;
+
+    $("#sortRating").addEventListener("click",()=>renderSquad(nat,year,"rating"));
+    $("#sortPos").addEventListener("click",()=>renderSquad(nat,year,"pos"));
+
+    $("#stage").querySelectorAll(".squad-opt").forEach(b=>{
+      b.addEventListener("click",()=>{
+        if(b.disabled) return;
+        const pl=PLAYERS.find(x=>x.id===parseInt(b.dataset.pid,10));
+        if(!pl) return;
+        // find which empty slots this player is eligible for
+        const eligSlots=POSITIONS.filter(s=>!filled[s.id]&&POS_ELIGIBLE[s.id].includes(pl.pos));
+        if(eligSlots.length===1){
+          commitPick(pl,year,eligSlots[0].id);
+        } else {
+          chooseSlot(pl,year,eligSlots,nat);
+        }
+      });
+    });
+
+    const rb=$("#redrawBtn");
+    if(rb) rb.addEventListener("click",()=>{
+      if(rerolls>0){ rerolls--; updateRerolls(); currentDraw=null; renderSpinStage(); setTimeout(doSpin,50); }
+    });
+    const bb=$("#backToSpinBtn");
+    if(bb) bb.addEventListener("click",()=>{ currentDraw=null; renderSpinStage(); });
+  }
+
+  // If player fits multiple empty slots, ask which one
+  function chooseSlot(pl,year,eligSlots,nat){
+    const n=NAT[nat];
+    const slotBtns=eligSlots.map(s=>`
+      <button class="opt" data-slotid="${s.id}">
+        <span class="nm"><b>${s.name}</b><span>Position ${POS_SHORT[s.id]}</span></span>
+      </button>`).join("");
+    $("#stage").innerHTML=`
+      <div class="pick-zone" style="width:100%;max-width:520px;margin-top:16px">
+        <div style="text-align:center;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:700;color:var(--ink)">${pl.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Choose which position slot to fill</div>
+        </div>
+        <div class="opts">${slotBtns}</div>
+        <div class="pick-actions" style="margin-top:14px;display:flex;justify-content:center">
+          <button class="ghost" id="backToSquadBtn">← Back</button>
+        </div>
+      </div>`;
+    $("#stage").querySelectorAll(".opt[data-slotid]").forEach(b=>{
+      b.addEventListener("click",()=>commitPick(pl,year,b.dataset.slotid));
+    });
+    $("#backToSquadBtn").addEventListener("click",()=>renderSquad(nat,year));
+  }
+
+  function commitPick(pl,year,slotId){
+    if(usedNames.has(pl.name)) return;
+    const prev=filled[slotId]; if(prev) usedNames.delete(prev.name);
+    const chosen=Object.assign({},pl,{seasonDrawn:year});
+    filled[slotId]=chosen; usedNames.add(pl.name);
+    const pos=POSITIONS.find(p=>p.id===slotId);
+    paint({id:slotId},chosen);
+    toast(`${pl.name} ('${String(year).slice(2)}) drafted`);
+    currentDraw=null;
+    updateProgress();
+    if(Object.keys(filled).length<15){ renderSpinStage(); }
+    else { idleStage(); }
+  }
+
+  function paint(slot,pl){
+    const n=NAT[pl.nat];
+    const pos=POSITIONS.find(p=>p.id===slot.id);
+    const el=pitchEl.querySelector(`[data-slot="${slot.id}"]`);
+    el.className="shirt filled"; el.style.setProperty("--natbg",hexFade(pl.nat));
+    el.innerHTML=shirtInner(pos,pl);
+    el.querySelector(".ring").style.borderColor=n.col;
+  }
+  function hexFade(nat){const m={ENG:"rgba(232,232,236,.14)",IRE:"rgba(23,155,84,.18)",SCO:"rgba(42,89,196,.20)",WAL:"rgba(212,34,48,.18)",FRA:"rgba(47,109,240,.18)",ITA:"rgba(31,155,214,.18)"};return m[nat];}
+
+  // clicking a filled shirt lets you re-pick it from the same draw logic
+  function showSquadForSlot(slotId){
+    // just trigger a new draw targeting that slot — same mechanic
+    renderSpinStage();
+    setTimeout(doSpin,50);
+  }
+
+  function idleStage(){
+    const remaining=15-Object.keys(filled).length;
+    $("#eyebrow").textContent="Draft your squad";
+    $("#headline").textContent=remaining>0?`${remaining} position${remaining===1?'':'s'} left to fill`:"Squad complete — enter the Championship";
+    if(remaining>0){
+      renderSpinStage();
+    } else {
+      $("#stage").innerHTML=`<div class="spin-zone"><p class="spin-hint">All 15 picked. Enter the Championship below.</p></div>`;
+    }
+  }
+
+  function updateRerolls(){ $("#rerollCnt").textContent=rerolls; $("#rerollCnt").style.color=rerolls?"var(--gold)":"var(--muted-2)"; }
+
+  let toastTimer;
+  function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),1600);}
+
+  function updateProgress(){
+    const n=Object.keys(filled).length;
+    $("#topFill").style.width=(n/15*100)+"%";
+    const done=n===15;
+    const btn=$("#champBtn"); btn.disabled=!done;
+    btn.textContent= done? "🏆  Enter the Six Nations Championship →":"Complete your squad to enter the Championship";
+    renderRatings();
+  }
+
+  /* ============ CHAMPIONSHIP SIM ============ */
+  function rand(a,b){return a+Math.random()*(b-a);}
+
+  const NAT_SCORERS={
+    IRE:['Sexton','Earls','Keenan','Lowe','Murray','Ringrose','Stockdale','Van der Flier','Furlong','Doris'],
+    ENG:['Farrell','May','Nowell','Curry','Itoje','George','Ford','Steward','Vunipola','Lawes'],
+    SCO:['Hogg','Graham','Russell','Watson','Darge','Van der Merwe','Kinghorn','Fagerson','Gilchrist'],
+    WAL:['North','Adams','Halfpenny','Tipuric','Warburton','Davies','Williams','Faletau','Jones'],
+    FRA:['Dupont','Ntamack','Penaud','Alldritt','Ollivon','Ramos','Fickou','Baille','Marchand'],
+    ITA:['Parisse','Garbisi','Capuozzo','Lamaro','Brex','Cannone','Ioane','Fischetti','Lucchesi'],
+  };
+
+  function getSquadProfile(){
+    const grp=ids=>{const a=ids.map(i=>filled[i]).filter(Boolean);return a.length?a.reduce((s,p)=>s+p.rating,0)/a.length:75;};
+    const frontAvg  = grp(["LP","HK","TP"]);
+    const locksAvg  = grp(["SR1","SR2"]);
+    const backRowAvg= grp(["FL1","FL2","N8"]);
+    const halvesAvg = grp(["SH","FH"]);
+    const centreAvg = grp(["CE1","CE2"]);
+    const back3Avg  = grp(["WG1","WG2","FB"]);
+    const overall   = grp(["LP","HK","TP","SR1","SR2","FL1","FL2","N8","SH","FH","WG1","CE1","CE2","WG2","FB"]);
+    // Attack: halves + centres + back3 drive try scoring
+    const attackRating  = halvesAvg*0.30 + centreAvg*0.30 + back3Avg*0.25 + backRowAvg*0.15;
+    // Set piece: front row + locks — weak here = more penalties conceded, easier for them to attack
+    const setPieceRating= frontAvg*0.50 + locksAvg*0.40 + backRowAvg*0.10;
+    // Defence: back row + locks + front row
+    const defenceRating = backRowAvg*0.40 + locksAvg*0.30 + frontAvg*0.20 + halvesAvg*0.10;
+    // Chink in armour: find lowest unit vs overall
+    const units={front:frontAvg,locks:locksAvg,backRow:backRowAvg,halves:halvesAvg,centres:centreAvg,back3:back3Avg};
+    const minUnit=Object.entries(units).reduce((a,b)=>b[1]<a[1]?b:a,['none',overall]);
+    const chink=overall-minUnit[1]; // how far below overall the weakest unit is
+    return{overall,attackRating,defenceRating,setPieceRating,frontAvg,locksAvg,backRowAvg,halvesAvg,centreAvg,back3Avg,chink,chinkUnit:minUnit[0]};
+  }
+
+  function generateMatchEvents(profile,oppNat,oppRating){
+    const usedMins=new Set();const events=[];
+    function getMin(lo=2,hi=78){let m,t=0;do{m=Math.floor(lo+Math.random()*(hi-lo));t++;}while(usedMins.has(m)&&t<60);usedMins.add(m);return m;}
+    const{attackRating,defenceRating,setPieceRating,chink,chinkUnit}=profile;
+
+    // Fly half is the kicker for conversions and penalties
+    const fh=filled['FH'];
+    const kicker=fh?fh.name.split(' ').slice(-1)[0]:'';
+
+    // Weighted try scorer pool: backs more likely, forwards by rating
+    const POS_TRY_WEIGHT={WG:5,FB:4,CE:4,FH:2.5,SH:2,FL:1.8,N8:1.8,SR:0.5,LP:0.3,HK:0.5,TP:0.3};
+    const tryScorerPool=[];
+    Object.values(filled).filter(Boolean).forEach(p=>{
+      const posW=POS_TRY_WEIGHT[p.pos]||1;
+      const ratingW=Math.max(0.2,(p.rating-72)/26); // 0.2 at 72, 1.0 at 98
+      const totalW=Math.max(1,Math.round(posW*ratingW*8));
+      const lastName=p.name.split(' ').slice(-1)[0];
+      for(let i=0;i<totalW;i++) tryScorerPool.push(lastName);
+    });
+    const pickTry=()=>tryScorerPool[Math.floor(Math.random()*tryScorerPool.length)]||kicker;
+
+    // Harder opponents
+    const oppAtk=oppRating*0.68;
+    const oppDef=oppRating*0.68;
+    const backsWeakness=(chinkUnit==='halves'||chinkUnit==='centres'||chinkUnit==='back3')?chink*0.08:0;
+    const atkAdv=(attackRating-backsWeakness*10-oppDef)*0.11;
+    const myTries=Math.max(0,Math.min(9,Math.round(1.6+atkAdv+(Math.random()*3.5-1.75))));
+    const setPieceWeakness=(chinkUnit==='front'||chinkUnit==='locks')?chink*0.10:0;
+    const defWeakness=(chinkUnit==='backRow')?chink*0.08:0;
+    const defAdv=(defenceRating-setPieceWeakness*10-defWeakness*10-oppAtk)*0.11;
+    const theirTries=Math.max(0,Math.min(9,Math.round(1.6-defAdv+(Math.random()*3.5-1.75))));
+    const setPieceRatio=Math.max(0,(oppRating-setPieceRating)*0.05);
+    const myPens=Math.floor(rand(0,3))+Math.round(setPieceRatio)+(myTries<2?Math.floor(rand(1,2)):0);
+    const theirPens=Math.floor(rand(0,3))+(theirTries<2?Math.floor(rand(1,2)):0);
+
+    const myNames=Object.values(filled).filter(Boolean).map(p=>p.name.split(' ').slice(-1)[0]);
+    const theirNames=NAT_SCORERS[oppNat]||['Unknown'];
+    const pick=arr=>arr[Math.floor(Math.random()*arr.length)];
+
+    // Assist pool — playmakers more likely (SH, FH, CE weighted higher)
+    const POS_ASSIST_WEIGHT={SH:5,FH:5,CE:3,WG:1,FB:2,FL:1.5,N8:1.5,SR:0.5,LP:0.2,HK:0.3,TP:0.2};
+    const assistPool=[];
+    Object.values(filled).filter(Boolean).forEach(p=>{
+      const w=Math.max(1,Math.round((POS_ASSIST_WEIGHT[p.pos]||1)*((p.rating-72)/26+0.5)*6));
+      const ln=p.name.split(' ').slice(-1)[0];
+      for(let i=0;i<w;i++) assistPool.push(ln);
+    });
+    const pickAssist=(tryscorer)=>{
+      const pool=assistPool.filter(n=>n!==tryscorer);
+      return pool.length?pool[Math.floor(Math.random()*pool.length)]:'';
+    };
+
+    for(let i=0;i<myTries;i++){
+      const min=getMin();
+      const scorer=pickTry();
+      const assist=Math.random()<0.85?pickAssist(scorer):''; // 85% of tries have an assist
+      events.push({min,team:'you',type:'try',scorer,assist});
+      const convMin=Math.min(min+1,80);
+      if(Math.random()<0.83) events.push({min:convMin,team:'you',type:'conversion',scorer:kicker});
+      else events.push({min:convMin,team:'you',type:'conversion_missed',scorer:kicker});
+    }
+    for(let i=0;i<theirTries;i++){
+      const min=getMin();
+      events.push({min,team:'them',type:'try',scorer:'',assist:''});
+      const convMin=Math.min(min+1,80);
+      if(Math.random()<0.78) events.push({min:convMin,team:'them',type:'conversion',scorer:''});
+      else events.push({min:convMin,team:'them',type:'conversion_missed',scorer:''});
+    }
+    for(let i=0;i<myPens;i++){
+      if(Math.random()<0.82) events.push({min:getMin(),team:'you',type:'penalty',scorer:kicker});
+      else events.push({min:getMin(),team:'you',type:'penalty_missed',scorer:kicker});
+    }
+    for(let i=0;i<theirPens;i++){
+      if(Math.random()<0.78) events.push({min:getMin(),team:'them',type:'penalty',scorer:''});
+      else events.push({min:getMin(),team:'them',type:'penalty_missed',scorer:''});
+    }
+    if(Math.random()<0.30){const t=Math.random()<0.5?'you':'them';events.push({min:getMin(15,70),team:t,type:'yellow',scorer:t==='you'?pick(myNames):''});}
+    if(Math.random()<0.06){const t=Math.random()<0.5?'you':'them';events.push({min:getMin(10,65),team:t,type:'red',scorer:t==='you'?pick(myNames):''});}
+    events.sort((a,b)=>a.min-b.min);
+    let myScore=0,theirScore=0;
+    events.forEach(e=>{
+      if(e.team==='you'){if(e.type==='try')myScore+=5;else if(e.type==='conversion')myScore+=2;else if(e.type==='penalty')myScore+=3;}
+      else{if(e.type==='try')theirScore+=5;else if(e.type==='conversion')theirScore+=2;else if(e.type==='penalty')theirScore+=3;}
+    });
+    return{events,myScore,theirScore,myTries,theirTries,chinkUnit,chink};
+  }
+
+  function simulate(){
+    const profile=getSquadProfile();
+    const startAvg=profile.overall;
+    // Tougher opponents — requires ~88+ overall for Grand Slam
+    const oppStrength={IRE:88,FRA:87,ENG:85,SCO:82,WAL:80,ITA:75};
+    const opps=Object.keys(oppStrength);
+    let table={};
+    opps.forEach(o=>table[o]={name:NAT[o].name,nat:o,P:0,W:0,D:0,L:0,PF:0,PA:0,Pts:0});
+    table.YOU={name:"Your All-Stars",nat:"YOU",P:0,W:0,D:0,L:0,PF:0,PA:0,Pts:0,you:true};
+    const allTeams=opps.concat(["YOU"]);
+    const strengthOf=t=>t==="YOU"?startAvg:oppStrength[t];
+    const myGames=[];const myGameEvents=[];
+    for(let i=0;i<allTeams.length;i++)for(let j=i+1;j<allTeams.length;j++){
+      const a=allTeams[i],b=allTeams[j];let pa,pb,triesA=0,triesB=0;
+      if(a==="YOU"||b==="YOU"){
+        const opp=a==="YOU"?b:a;
+        const g=generateMatchEvents(profile,opp,oppStrength[opp]);
+        pa=a==="YOU"?g.myScore:g.theirScore;pb=a==="YOU"?g.theirScore:g.myScore;
+        triesA=a==="YOU"?g.myTries:g.theirTries;triesB=a==="YOU"?g.theirTries:g.myTries;
+        const diff=strengthOf(a)-strengthOf(b);
+        myGames.push({opp,my:a==="YOU"?pa:pb,ot:a==="YOU"?pb:pa,diff:a==="YOU"?diff:-diff});
+        myGameEvents.push({opp,events:g.events,myScore:g.myScore,theirScore:g.theirScore,myTries:g.myTries,theirTries:g.theirTries,chinkUnit:g.chinkUnit,chink:g.chink});
+      } else {
+        const sa=strengthOf(a)+rand(-10,10),sb=strengthOf(b)+rand(-10,10);
+        const d=sa-sb;
+        triesA=Math.max(0,Math.round(2+d*0.1+rand(-2,2)));
+        triesB=Math.max(0,Math.round(2-d*0.1+rand(-2,2)));
+        pa=triesA*5+Math.floor(triesA*0.8)*2+Math.floor(rand(0,4))*3;
+        pb=triesB*5+Math.floor(triesB*0.8)*2+Math.floor(rand(0,4))*3;
+      }
+      pa=Math.max(0,pa);pb=Math.max(0,pb);
+      score(table[a],pa,pb);score(table[b],pb,pa);
+      bonus(table[a],pa,pb,triesA);bonus(table[b],pb,pa,triesB);
+    }
+    const standings=Object.values(table).sort((x,y)=>y.Pts-x.Pts||(y.PF-y.PA)-(x.PF-x.PA)||y.PF-x.PF);
+    // Collect per-player stats from all 6 my games
+    const TACKLE_BASE={LP:8,HK:7,TP:7,SR:9,FL:12,N8:10,SH:6,FH:4,WG:5,CE:7,FB:6};
+    const playerStats={};
+    Object.values(filled).filter(Boolean).forEach(p=>{
+      const ln=p.name.split(' ').slice(-1)[0];
+      const base=TACKLE_BASE[p.pos]||6;
+      const rf=0.8+(p.rating-75)/125;
+      playerStats[ln]={name:p.name,pos:p.pos,rating:p.rating,tries:0,assists:0,conversions:0,convMissed:0,penalties:0,penMissed:0,
+        tackles:Math.max(0,Math.round((base*rf+rand(-3,3))*6))};
+    });
+    myGameEvents.forEach(g=>{
+      g.events.forEach(e=>{
+        if(e.team==='you'&&e.scorer&&playerStats[e.scorer]){
+          if(e.type==='try') playerStats[e.scorer].tries++;
+          else if(e.type==='conversion') playerStats[e.scorer].conversions++;
+          else if(e.type==='conversion_missed') playerStats[e.scorer].convMissed++;
+          else if(e.type==='penalty') playerStats[e.scorer].penalties++;
+          else if(e.type==='penalty_missed') playerStats[e.scorer].penMissed++;
+        }
+        // track assists separately
+        if(e.team==='you'&&e.type==='try'&&e.assist&&playerStats[e.assist]){
+          playerStats[e.assist].assists++;
+        }
+      });
+    });
+    return{standings,myGames,myGameEvents,startAvg,profile,playerStats};
+  }
+  function score(t,pf,pa){t.P++;t.PF+=pf;t.PA+=pa;if(pf>pa){t.W++;t.Pts+=4;}else if(pf===pa){t.D++;t.Pts+=2;}else t.L++;}
+  function bonus(t,pf,pa,tries){if(pf<pa&&pa-pf<=7)t.Pts++;if(tries>=4)t.Pts++;}
+
+  const CHINK_LABELS={
+    front:'Set piece exploited — weak front row punished at the scrum.',
+    locks:'Lineout under pressure — opposition maul caused damage.',
+    backRow:'Breakdown battles lost — turnover count hurt the team.',
+    halves:'Lack of control at 9 and 10 — territory and tempo ceded.',
+    centres:'Midfield breached — defensive holes through the middle.',
+    back3:'Back three exposed — kick chase and aerial game lost.',
+  };
+
+  function report(g){
+    const margin=g.my-g.ot;
+    let base;
+    if(margin>0){base=margin>20?'Total dominance — a statement performance.':margin>10?'A commanding win, never really in doubt.':margin>5?'Controlled and professional throughout.':'A nervy win, but the points are what matter.';}
+    else if(margin<0){const m=-margin;base=m>20?'Outclassed from start to finish.':m>10?'Never clicked — a difficult afternoon.':m>5?'Fell short despite a spirited effort.':'Heartbreak — lost by a single score.';}
+    else{base='An absorbing contest that neither side deserved to lose.';}
+    // Add chink in armour note if significant weakness exploited in a loss or tight game
+    if(g.chink>=8&&margin<=3&&CHINK_LABELS[g.chinkUnit]){base+=' '+CHINK_LABELS[g.chinkUnit];}
+    return base;
+  }
+
+  const EVENT_ICON={try:'🟢',conversion:'⚪',conversion_missed:'❌',penalty:'🎯',penalty_missed:'❌',yellow:'🟡',red:'🔴'};
+  const EVENT_LABEL={try:'TRY',conversion:'CONVERSION',conversion_missed:'CONVERSION MISSED',penalty:'PENALTY',penalty_missed:'PENALTY MISSED',yellow:'YELLOW CARD',red:'RED CARD'};
+
+  function showChampionship(){
+    const sim=simulate();
+    $("#modalBg").classList.add("show");
+    runGame(sim,0);
+  }
+
+  function runGame(sim,idx){
+    const g=sim.myGameEvents[idx];
+    const n=NAT[g.opp];
+    const isLast=idx===sim.myGameEvents.length-1;
+    let myScore=0,theirScore=0,eventIdx=0;
+    $("#modalContent").innerHTML=`
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Game ${idx+1} of ${sim.myGameEvents.length} · vs ${n.name}</div>
+      <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div style="font-size:14px;font-weight:700;color:var(--accent);flex:1">All-Stars</div>
+          <div id="gameClock" style="font-size:11px;letter-spacing:1px;color:var(--muted);padding:3px 12px;border:1px solid var(--line);border-radius:999px;">0'</div>
+          <div style="font-size:14px;font-weight:700;text-align:right;flex:1;color:${n.col}">${n.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:28px;">
+          <div id="myScoreEl" style="font-size:56px;font-weight:800;letter-spacing:-2px;color:var(--accent);min-width:60px;text-align:center;">0</div>
+          <div style="font-size:24px;color:var(--muted-2)">–</div>
+          <div id="theirScoreEl" style="font-size:56px;font-weight:800;letter-spacing:-2px;color:var(--ink);min-width:60px;text-align:center;">0</div>
+        </div>
+      </div>
+      <div id="eventFeed" style="display:flex;flex-direction:column;gap:7px;max-height:260px;overflow-y:auto;"></div>
+      <div id="gameFooter" style="margin-top:16px;"></div>`;
+    const feed=document.getElementById("eventFeed");
+    const clockEl=document.getElementById("gameClock");
+    function addEvent(e){
+      if(e.type==='try'){if(e.team==='you')myScore+=5;else theirScore+=5;}
+      else if(e.type==='conversion'){if(e.team==='you')myScore+=2;else theirScore+=2;}
+      else if(e.type==='penalty'){if(e.team==='you')myScore+=3;else theirScore+=3;}
+      document.getElementById("myScoreEl").textContent=myScore;
+      document.getElementById("theirScoreEl").textContent=theirScore;
+      clockEl.textContent=e.min+"'";
+      const isYou=e.team==='you';
+      const assistStr=(e.type==='try'&&e.assist)?` <span style="color:var(--muted);font-size:11px">(ast: ${e.assist})</span>`:'';
+      const nameStr=e.scorer?` — ${e.scorer}`:'';
+      const teamStr=isYou?`<span style="color:var(--accent)">All-Stars</span>`:`<span style="color:${n.col}">${n.name}</span>`;
+      const row=document.createElement("div");
+      row.style.cssText="display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:13px;";
+      row.innerHTML=`<span style="font-size:16px">${EVENT_ICON[e.type]||'·'}</span><span style="flex:1">${teamStr} <b>${EVENT_LABEL[e.type]}</b>${nameStr}${assistStr}</span><span style="color:var(--muted);font-size:11px">${e.min}'</span>`;
+      feed.insertBefore(row,feed.firstChild);
+    }
+    const totalEvents=g.events.length;
+    const delay=totalEvents>0?Math.max(400,Math.floor(28000/totalEvents)):1200;
+    function tick(){
+      if(eventIdx<g.events.length){addEvent(g.events[eventIdx++]);setTimeout(tick,delay+rand(-150,150));}
+      else{
+        clockEl.textContent="FT";
+        const result=myScore>theirScore?'WON':myScore<theirScore?'LOST':'DREW';
+        const rc=myScore>theirScore?'var(--accent)':myScore<theirScore?'#ff5b6e':'var(--gold)';
+        document.getElementById("gameFooter").innerHTML=`
+          <div style="text-align:center;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:14px;">
+            <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:${rc};font-weight:800;">${result} ${myScore}–${theirScore}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:5px;">${report({opp:g.opp,my:myScore,ot:theirScore})}</div>
+          </div>
+          <button class="spinbtn" style="width:100%;justify-content:center;" id="nextGameBtn">${isLast?'See final standings →':'Next match →'}</button>`;
+        document.getElementById("nextGameBtn").addEventListener("click",()=>{ if(!isLast)runGame(sim,idx+1);else showFinalTable(sim); });
+      }
+    }
+    setTimeout(tick,500);
+  }
+
+  function showFinalTable(sim){
+    const me=sim.standings.find(t=>t.you);
+    const pos=sim.standings.indexOf(me)+1;
+    const wonAll=me.W===6;
+    const ps=sim.playerStats||{};
+    const totalTries=Object.values(ps).reduce((s,p)=>s+p.tries,0);
+    const totalTackles=Object.values(ps).reduce((s,p)=>s+p.tackles,0);
+    const kicker=filled['FH']?filled['FH'].name.split(' ').slice(-1)[0]:'';
+
+    // Result banner
+    let banner,cls;
+    if(wonAll){cls="gs";banner=`🏆 GRAND SLAM<small>Won all six — champions of the Six Nations</small>`;}
+    else if(pos===1){cls="win";banner=`🏆 CHAMPIONS<small>${me.W}W ${me.D}D ${me.L}L</small>`;}
+    else if(pos===7){cls="mid";banner=`🥄 WOODEN SPOON<small>Bottom of the table</small>`;}
+    else{cls="mid";banner=`${ordinal(pos)} place<small>${me.W}W ${me.D}D ${me.L}L</small>`;}
+
+    // 6 scoreline cards
+    const scoreCards=sim.myGameEvents.map(g=>{
+      const win=g.myScore>g.theirScore,draw=g.myScore===g.theirScore;
+      const col=win?'var(--accent)':draw?'var(--gold)':'#ff5b6e';
+      const nat=NAT[g.opp];
+      return `<div style="padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);text-align:center;">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;letter-spacing:.5px">vs ${nat.name}</div>
+        <div style="font-size:18px;font-weight:800;letter-spacing:-1px;">
+          <span style="color:var(--accent)">${g.myScore}</span>
+          <span style="color:var(--muted-2);font-size:14px;margin:0 3px">–</span>
+          <span style="color:var(--ink)">${g.theirScore}</span>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:${col};margin-top:3px;letter-spacing:1px;">${win?'W':draw?'D':'L'}</div>
+      </div>`;
+    }).join("");
+
+    // Season stats grid
+    const statBox=(val,lbl,col='var(--ink)')=>`<div style="padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);text-align:center;">
+      <div style="font-size:28px;font-weight:800;color:${col};letter-spacing:-1px;">${val}</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px;">${lbl}</div>
+    </div>`;
+
+    // Player table rows — sorted by tries desc
+    // Build slot→number lookup from filled squad
+    // Slot order map for sorting 1-15
+    const slotOrder={LP:1,HK:2,TP:3,SR1:4,SR2:5,FL1:6,FL2:7,N8:8,SH:9,FH:10,WG1:11,CE1:12,CE2:13,WG2:14,FB:15};
+    const nameToSlot={};
+    POSITIONS.forEach(pos=>{
+      const pl=filled[pos.id];
+      if(pl){ nameToSlot[pl.name.split(' ').slice(-1)[0]]={num:slotOrder[pos.id],slot:pos.id}; }
+    });
+    const POS_SHORT_MAP={LP:'1',HK:'2',TP:'3',SR:'4',FL:'6',N8:'8',SH:'9',FH:'10',WG:'11',CE:'12',FB:'15'};
+
+    // Sub-category group colours
+    const GROUP_COL={
+      front:'#c8843a',   // Front Row — orange
+      lock:'#7b8fc4',    // Locks — blue
+      backrow:'#6bba6b', // Back Row — green
+      half:'#d4c44b',    // Halves — gold
+      centre:'#e06868',  // Centres — coral
+      back3:'#9b6bc4',   // Back 3 — purple
+    };
+    const POS_GROUP={LP:'front',HK:'front',TP:'front',SR1:'lock',SR2:'lock',FL1:'backrow',FL2:'backrow',N8:'backrow',SH:'half',FH:'half',WG1:'back3',CE1:'centre',CE2:'centre',WG2:'back3',FB:'back3'};
+
+    const playerRows=Object.values(ps)
+      .sort((a,b)=>{
+        const sa=nameToSlot[a.name.split(' ').slice(-1)[0]]?.num||99;
+        const sb=nameToSlot[b.name.split(' ').slice(-1)[0]]?.num||99;
+        return sa-sb;
+      })
+      .map(p=>{
+        const ln=p.name.split(' ').slice(-1)[0];
+        const isKicker=ln===kicker;
+        const slotInfo=nameToSlot[ln];
+        const shirtNum=slotInfo?.num||POS_SHORT_MAP[p.pos]||'?';
+        const slotId=slotInfo?.slot||'';
+        const grp=POS_GROUP[slotId]||'front';
+        const grpCol=GROUP_COL[grp];
+        const ratingCol=p.rating>=90?'#36d17a':p.rating>=84?'#9ade4a':p.rating>=76?'var(--gold)':p.rating>=68?'#ff9a55':'#ff5b6e';
+        const convStr=isKicker
+          ?`<td class="c" style="color:var(--accent)">${p.conversions}/${p.conversions+p.convMissed}</td><td class="c" style="color:var(--gold)">${p.penalties}${p.penMissed?`<span style="color:var(--gold)">/${p.penalties+p.penMissed}</span>`:''}</td>`
+          :`<td class="c" style="color:var(--muted-2)">—</td><td class="c" style="color:var(--muted-2)">—</td>`;
+        return `<tr style="border-left:3px solid ${grpCol}">
+          <td style="padding-left:10px"><div style="display:flex;align-items:center;gap:8px;">
+            <span style="background:${grpCol};color:#0e0a04;font-size:9px;font-weight:800;padding:2px 5px;border-radius:4px;flex-shrink:0;min-width:18px;text-align:center">${shirtNum}</span>
+            <span style="font-size:13px;font-weight:600">${p.name}</span>
+            <span style="font-size:10px;color:var(--muted-2)">'${String(filled[slotInfo?.slot]?.seasonDrawn||'').slice(-2)}</span>
+          </div></td>
+          <td class="c" style="font-weight:800;color:${ratingCol}">${p.rating}</td>
+          <td class="c" style="font-weight:800;color:${p.tries>0?'var(--gold)':'var(--muted-2)'}">${p.tries||'·'}</td>
+          <td class="c" style="color:${p.assists>0?'var(--accent)':'var(--muted-2)'}">${p.assists||'·'}</td>
+          ${convStr}
+          <td class="c" style="color:var(--muted)">${p.tackles}</td>
+        </tr>`;
+      }).join("");
+
+    // Final standings table
+    const standingRows=sim.standings.map(t=>`<tr class="${t.you?'you':''}">
+      <td><div class="teamcell"><span class="dot" style="background:${t.nat==='YOU'?'var(--accent)':NAT[t.nat].col}"></span>${t.name}</div></td>
+      <td class="c">${t.P}</td><td class="c">${t.W}</td><td class="c">${t.D}</td><td class="c">${t.L}</td>
+      <td class="c">${t.PF-t.PA>0?'+':''}${t.PF-t.PA}</td><td class="pts">${t.Pts}</td>
+    </tr>`).join("");
+
+    const run={pts:me.Pts,wins:me.W,draws:me.D,losses:me.L,pos,slam:wonAll,overall:Math.round(sim.startAvg)};
+
+    $("#modalContent").innerHTML=`
+      <h2>Six Nations — Season Review</h2>
+      <div class="sub">Your XV · 4 pts win, 2 draw, +1 losing bonus, +1 four-try bonus</div>
+
+      <div class="finish-banner ${cls}">${banner}</div>
+
+      <!-- 6 scorelines -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px;">${scoreCards}</div>
+
+      <!-- Season stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;">
+        ${statBox(me.W,'Wins','#36d17a')}
+        ${statBox(me.D,'Draws','var(--gold)')}
+        ${statBox(me.L,'Losses','#ff5b6e')}
+        ${statBox(me.PF,'Points Scored','var(--ink)')}
+        ${statBox(me.PA,'Points Conceded','var(--ink)')}
+        ${statBox(totalTries,'Tries','var(--ink)')}
+      </div>
+
+      <!-- Player breakdown -->
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Player Stats</div>
+      <table class="table" style="margin-bottom:24px;">
+        <thead><tr>
+          <th>Player</th>
+          <th class="c">Rtg</th>
+          <th class="c">Tries</th>
+          <th class="c">Assists</th>
+          <th class="c">Conv</th>
+          <th class="c">Pens</th>
+          <th class="c">Tackles</th>
+        </tr></thead>
+        <tbody>${playerRows}</tbody>
+      </table>
+
+      <!-- Final table -->
+      <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Final Table</div>
+      <table class="table" style="margin-bottom:20px;">
+        <thead><tr><th>Team</th><th class="c">P</th><th class="c">W</th><th class="c">D</th><th class="c">L</th><th class="c">+/−</th><th class="c">Pts</th></tr></thead>
+        <tbody>${standingRows}</tbody>
+      </table>
+
+      <div class="result-actions">
+        <button class="cta go-again" id="goAgain">↻ New run</button>
+        <button class="ghost share" id="shareRun">Share result</button>
+      </div>`;
+
+    $("#closeModal")&&$("#closeModal").addEventListener("click",()=>$("#modalBg").classList.remove("show"));
+    $("#goAgain").addEventListener("click",()=>{ window.location.href='settings.html'; });
+    $("#shareRun").addEventListener("click",()=>shareRun(run,sim));
+  }
+
+
+  function shareRun(run,sim){
+    const ps=sim?sim.playerStats:{};
+    const POS_COL_SHARE={LP:'#c8843a',HK:'#c8843a',TP:'#c8843a',SR:'#7b8fc4',FL:'#6bba6b',N8:'#6bba6b',SH:'#d4c44b',FH:'#d4c44b',WG:'#c84b4b',CE:'#c84b4b',FB:'#c84b4b'};
+    const POS_LBL={LP:'1',HK:'2',TP:'3',SR1:'4',SR2:'5',FL1:'6',FL2:'7',N8:'8',SH:'9',FH:'10',WG1:'11',CE1:'12',CE2:'13',WG2:'14',FB:'15'};
+
+    // Awards
+    const players=Object.values(ps);
+    const goldenBoot=players.sort((a,b)=>b.tries-a.tries)[0];
+    const potScore=p=>p.tries*8+(p.conversions*2+p.penalties*3)+p.tackles*0.3+(p.rating-75)*0.2;
+    const pot=[...players].sort((a,b)=>potScore(b)-potScore(a))[0];
+
+    // Player grid — forwards left, backs right
+    const fwdSlots=["LP","HK","TP","SR1","SR2","FL1","FL2","N8"];
+    const bakSlots=["SH","FH","WG1","CE1","CE2","WG2","FB"];
+    const playerRow=(slotId)=>{
+      const pl=filled[slotId];if(!pl)return'';
+      const posCol=POS_COL_SHARE[pl.pos]||'#888';
+      return `<div style="display:flex;align-items:center;gap:7px;padding:5px 0;">
+        <span style="background:${posCol};color:#0e0a04;font-size:9px;font-weight:800;padding:2px 5px;border-radius:4px;min-width:22px;text-align:center;">${POS_LBL[slotId]||pl.pos}</span>
+        <span style="flex:1;font-size:12px;font-weight:600;color:#f0ebe0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${pl.name}</span>
+        <span style="font-size:12px;font-weight:800;color:#c8a84b;">${pl.rating}</span>
+      </div>`;
+    };
+
+    const resultLabel=run.slam?'GRAND SLAM':run.pos===1?'CHAMPIONS':run.pos===7?'WOODEN SPOON':`${ordinal(run.pos)} PLACE`;
+    const resultCol=run.slam?'#e7b53b':run.pos===1?'#c8a84b':run.pos===7?'#7d8a92':'#c8a84b';
+
+    const shareText=[
+      '🏉 Six Nations All-Stars',
+      `${run.slam?'🏆 GRAND SLAM':run.pos===1?'🏆 Champions':ordinal(run.pos)+' place'} — ${run.wins}W ${run.draws}D ${run.losses}L`,
+      `${run.pts} pts · Squad: ${run.overall} OVR`,
+      goldenBoot?`👟 Golden Boot: ${goldenBoot.name} (${goldenBoot.tries} tries)`:'',
+      pot?`🌟 Player of Tournament: ${pot.name}`:'',
+      'Build yours → sixnationsallstars.app'
+    ].filter(Boolean).join('\n');
+
+    // Build overlay
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:rgba(5,4,2,.92);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:16px;';
+    ov.innerHTML=`
+      <!-- Share card -->
+      <div style="width:min(420px,100%);background:linear-gradient(180deg,#1a1208,#100c06);border:1px solid rgba(200,168,75,.25);border-radius:18px;padding:22px;margin-bottom:14px;">
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <span style="font-size:14px;font-weight:800;color:#f0ebe0;">Six Nations All-Stars</span>
+          <div style="display:flex;gap:6px;">
+            <span style="font-size:10px;padding:3px 8px;border:1px solid rgba(255,255,255,.15);border-radius:999px;color:#8a7e6a;">${SETTINGS.diff||'normal'} · ${SETTINGS.ratingType||'season'}</span>
+            <span style="font-size:10px;padding:3px 8px;border:1px solid rgba(200,168,75,.4);border-radius:999px;color:#c8a84b;">OVR ${run.overall}</span>
+          </div>
+        </div>
+
+        <!-- Big result -->
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:48px;font-weight:900;letter-spacing:-2px;color:#f0ebe0;line-height:1;">${run.wins}<span style="color:rgba(255,255,255,.25);margin:0 6px;font-size:36px;">·</span>${run.draws}<span style="color:rgba(255,255,255,.25);margin:0 6px;font-size:36px;">·</span>${run.losses}</div>
+          <div style="font-size:10px;letter-spacing:3px;color:#8a7e6a;margin-top:4px;">WON · DRAWN · LOST</div>
+          <div style="font-size:13px;color:#c8a84b;margin-top:8px;font-weight:700;">${run.pts} pts · finished ${ordinal(run.pos)}</div>
+          <div style="font-size:14px;font-weight:800;letter-spacing:2px;color:${resultCol};margin-top:8px;padding:6px 16px;border:1px solid ${resultCol};border-radius:999px;display:inline-block;">${resultLabel}</div>
+        </div>
+
+        <!-- Player grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);padding:10px 0;margin-bottom:14px;">
+          <div>${fwdSlots.map(playerRow).join('')}</div>
+          <div>${bakSlots.map(playerRow).join('')}</div>
+        </div>
+
+        <!-- Awards -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;">
+            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7e6a;margin-bottom:4px;">👟 Golden Boot</div>
+            <div style="font-size:13px;font-weight:700;color:#f0ebe0;">${goldenBoot?goldenBoot.name:'—'}</div>
+            <div style="font-size:11px;color:#c8a84b;">${goldenBoot?goldenBoot.tries+' tries':'—'}</div>
+          </div>
+          <div style="background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.25);border-radius:10px;padding:10px 12px;">
+            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7e6a;margin-bottom:4px;">🌟 Player of Tournament</div>
+            <div style="font-size:13px;font-weight:700;color:#f0ebe0;">${pot?pot.name:'—'}</div>
+            <div style="font-size:11px;color:#c8a84b;">${pot?pot.tries+'T · '+pot.tackles+' tackles':'—'}</div>
+          </div>
+        </div>
+
+        <!-- Branding -->
+        <div style="text-align:center;font-size:11px;color:#5e5446;">sixnationsallstars.app</div>
+      </div>
+
+      <!-- Share buttons -->
+      <div style="width:min(420px,100%);display:flex;flex-direction:column;gap:8px;">
+        <button id="shareWA" style="width:100%;padding:14px;border:none;border-radius:10px;background:#25d366;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">WhatsApp</button>
+        <button id="shareX" style="width:100%;padding:14px;border:none;border-radius:10px;background:#000;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">𝕏 / Twitter</button>
+        <button id="shareCopy" style="width:100%;padding:14px;border:1px solid rgba(200,168,75,.4);border-radius:10px;background:rgba(200,168,75,.08);color:#c8a84b;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">🔗 Copy link</button>
+        <button id="shareClose" style="width:100%;padding:13px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:none;color:#8a7e6a;font-size:14px;cursor:pointer;font-family:inherit;">Close</button>
+      </div>`;
+
+    document.body.appendChild(ov);
+
+    document.getElementById('shareWA').addEventListener('click',()=>{
+      window.open('https://wa.me/?text='+encodeURIComponent(shareText),'_blank');
+    });
+    document.getElementById('shareX').addEventListener('click',()=>{
+      window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText),'_blank');
+    });
+    document.getElementById('shareCopy').addEventListener('click',()=>{
+      copyText(shareText,()=>{toast('Copied to clipboard!');});
+    });
+    document.getElementById('shareClose').addEventListener('click',()=>ov.remove());
+    ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+  }
+  function copyText(t,cb){
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(cb).catch(()=>fallbackCopy(t,cb));}
+    else fallbackCopy(t,cb);
+  }
+  function fallbackCopy(t,cb){
+    const ta=document.createElement("textarea");ta.value=t;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();try{document.execCommand("copy");}catch(e){}document.body.removeChild(ta);cb();
+  }
+  function ordinal(n){return n+["th","st","nd","rd"][(n%100>>3^1&&n%10)<4?n%10:0];}
+
+  /* ============ RESET / INIT ============ */
+  function reset(){
+    Object.keys(filled).forEach(k=>delete filled[k]); usedNames.clear();
+    currentDraw=null; rerolls=SETTINGS.rerolls; updateRerolls();
+    pitchEl.querySelectorAll(".shirt").forEach(el=>{const pos=POSITIONS.find(p=>p.id===el.dataset.slot);el.className="shirt empty";el.style.removeProperty("--natbg");el.innerHTML=shirtInner(pos,null);});
+    renderSpinStage(); updateProgress();
+  }
+
+  $("#champBtn").addEventListener("click",()=>{if(Object.keys(filled).length===15)showChampionship();});
+  /* ---- squad ratings panel ---- */
+  function togglePitch(){
+    const wrap=document.getElementById('pitchWrap');
+    const btn=document.getElementById('pitchToggle');
+    const open=wrap.classList.toggle('open');
+    wrap.classList.toggle('collapsed',!open);
+    btn.classList.toggle('open',open);
+  }
+
+  function buildRatings(){
+    $("#unitList").innerHTML = UNITS.map(u=>`
+      <div class="unit" data-unit="${u.id}">
+        <div class="u-top">
+          <div class="u-name"><span class="u-ico">${u.ico}</span>${u.name}</div>
+          <div class="u-val empty" id="uv-${u.id}">—</div>
+        </div>
+        <div class="u-bar"><i id="ub-${u.id}"></i></div>
+      </div>`).join("");
+  }
+  function unitAvg(slots){
+    const a=slots.map(s=>filled[s]).filter(Boolean);
+    return a.length? a.reduce((s,p)=>s+p.rating,0)/a.length : null;
+  }
+  function renderRatings(){
+    const xv=POSITIONS.map(p=>filled[p.id]).filter(Boolean);
+    const overall = xv.length? Math.round(xv.reduce((s,p)=>s+p.rating,0)/xv.length) : null;
+    $("#ovNum").textContent = overall===null? "—" : overall;
+    UNITS.forEach(u=>{
+      const avg=unitAvg(u.slots);
+      const val=$("#uv-"+u.id), bar=$("#ub-"+u.id);
+      if(avg===null){ val.textContent="—"; val.classList.add("empty"); bar.style.width="0%"; }
+      else{
+        val.textContent=Math.round(avg); val.classList.remove("empty");
+        // scale 50–100 across the bar so differences read clearly
+        const pct=Math.max(4,Math.min(100,(avg-50)/50*100));
+        bar.style.width=pct+"%";
+      }
+    });
+  }
+
+  $("#resetBtn").addEventListener("click",reset);
+  $("#modalBg").addEventListener("click",e=>{if(e.target.id==="modalBg")$("#modalBg").classList.remove("show");});
+
+  buildRatings(); updateRerolls(); renderSpinStage(); updateProgress();
+})();
+</script>
+</body>
+</html>

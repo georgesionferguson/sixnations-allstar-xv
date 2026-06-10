@@ -2184,7 +2184,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
   });
 
   function shirtInner(pos,pl){
-    return `<div class="ring">${(pl && SETTINGS.showRatings)?`<span class="rt">${pl.rating}</span>`:''}<span class="pos">${POS_SHORT[pos.id]}</span></div>
+    return `<div class="ring">${pl?`<span class="rt">${pl.rating}</span>`:''}<span class="pos">${POS_SHORT[pos.id]}</span></div>
       <div class="lbl">${pl? pl.name.split(' ').slice(-1)[0] : pos.name.replace(/(Loosehead |Tighthead |Inside |Outside |Blindside |Openside |Left |Right )/,'')}</div>
       ${pl?`<div class="sub">'${String(pl.seasonDrawn).slice(2)} ${pl.nat}</div>`:''}`;
   }

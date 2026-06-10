@@ -2261,7 +2261,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     });
 
     const cards=squad.map(pl=>{
-      const eligible=emptyPosTags.has(pl.pos)&&!usedNames.has(pl.name);
+      const eligible=[...allPositions[pl.name]].some(p=>emptyPosTags.has(p))&&!usedNames.has(pl.name);
       const positions=[...allPositions[pl.name]].map(pos=>POS_LABEL[pos]||pos).join(' · ');
       // get display rating — prime = career best across all seasons
       const displayRating = SETTINGS.ratingType === 'prime'
@@ -2305,7 +2305,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
         const pl=PLAYERS.find(x=>x.id===parseInt(b.dataset.pid,10));
         if(!pl) return;
         // find which empty slots this player is eligible for
-        const eligSlots=POSITIONS.filter(s=>!filled[s.id]&&POS_ELIGIBLE[s.id].includes(pl.pos));
+        const eligSlots=POSITIONS.filter(s=>!filled[s.id]&&[...allPositions[pl.name]].some(p=>POS_ELIGIBLE[s.id].includes(p)));
         if(eligSlots.length===1){
           commitPick(pl,year,eligSlots[0].id);
         } else {

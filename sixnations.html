@@ -2609,7 +2609,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
         }
       });
     });
-    return{standings,myGames,myGameEvents,startAvg,profile,playerStats};
+    return{standings,myGames,myGameEvents,startAvg,profile,playerStats,oppStrength};
   }
   function score(t,pf,pa){t.P++;t.PF+=pf;t.PA+=pa;if(pf>pa){t.W++;t.Pts+=4;}else if(pf===pa){t.D++;t.Pts+=2;}else t.L++;}
   function bonus(t,pf,pa,tries){if(pf<pa&&pa-pf<=7)t.Pts++;if(tries>=4)t.Pts++;}
@@ -2751,32 +2751,13 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       <div style="font-size:11px;color:var(--muted);margin-top:3px;">${lbl}</div>
     </div>`;
 
-    // Performance verdicts — compare each player's output to their rating
-    const prScore=p=>p.tries*7+p.assists*4+p.conversions*2+p.penalties*3+p.tackles*0.3;
-    const allPs=Object.values(ps);
-    const byRating=[...allPs].sort((a,b)=>b.rating-a.rating);
-    const byPR=[...allPs].sort((a,b)=>prScore(b)-prScore(a));
-    const ratingRank={},prRank={};
-    byRating.forEach((p,i)=>ratingRank[p.name]=i+1);
-    byPR.forEach((p,i)=>prRank[p.name]=i+1);
-    const diffs=allPs.map(p=>({p,diff:prRank[p.name]-ratingRank[p.name]}));
-    const overperformer=diffs.reduce((a,b)=>b.diff<a.diff?b:a);
-    const underperformer=diffs.reduce((a,b)=>b.diff>a.diff?b:a);
-    const bangOn=diffs.reduce((a,b)=>Math.abs(b.diff)<Math.abs(a.diff)?b:a);
-    const statLine=p=>{
-      const parts=[];
-      if(p.tries) parts.push(`${p.tries} ${p.tries===1?'try':'tries'}`);
-      if(p.assists) parts.push(`${p.assists} ${p.assists===1?'assist':'assists'}`);
-      if(p.conversions) parts.push(`${p.conversions} conv`);
-      if(p.penalties) parts.push(`${p.penalties} pen${p.penalties===1?'':'s'}`);
-      if(!parts.length) parts.push(`${p.tackles} tackles`);
-      return parts.join(', ');
-    };
-    const verdictCard=(label,icon,d,col)=>`<div style="padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);text-align:center;">
-      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:${col};font-weight:800;margin-bottom:6px;">${icon} ${label}</div>
-      <div style="font-size:15px;font-weight:700;color:var(--ink);">${d.p.name}</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:2px;">Rated ${d.p.rating} · ${statLine(d.p)}</div>
-    </div>`;
+    // Team verdict — compare actual finish to where the squad's overall rating "should" have placed it
+    const expectedPos=1+Object.values(sim.oppStrength).filter(r=>r>sim.startAvg).length;
+    const posDiff=expectedPos-pos; // positive = finished higher than expected
+    let verdict;
+    if(posDiff>=2)       verdict={label:'Overperformed',icon:'📈',col:'#36d17a',note:`Expected ${ordinal(expectedPos)} based on a ${Math.round(sim.startAvg)} rating — finished ${ordinal(pos)}`};
+    else if(posDiff<=-2) verdict={label:'Underperformed',icon:'📉',col:'#ff5b6e',note:`Expected ${ordinal(expectedPos)} based on a ${Math.round(sim.startAvg)} rating — finished ${ordinal(pos)}`};
+    else                 verdict={label:'On Target',icon:'🎯',col:'var(--gold)',note:`Expected ${ordinal(expectedPos)} based on a ${Math.round(sim.startAvg)} rating — finished ${ordinal(pos)}`};
 
     // Player table rows — sorted by tries desc
     // Build slot→number lookup from filled squad
@@ -2862,10 +2843,9 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
 
       <!-- Performance vs rating -->
       <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Performance vs Rating</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px;">
-        ${verdictCard('Overperformed','📈',overperformer,'#36d17a')}
-        ${verdictCard('Bang on','🎯',bangOn,'var(--gold)')}
-        ${verdictCard('Underperformed','📉',underperformer,'#ff5b6e')}
+      <div style="padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);text-align:center;margin-bottom:24px;">
+        <div style="font-size:13px;letter-spacing:2px;text-transform:uppercase;color:${verdict.col};font-weight:800;">${verdict.icon} ${verdict.label}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:5px;">${verdict.note}</div>
       </div>
 
       <!-- Player breakdown -->

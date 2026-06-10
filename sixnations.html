@@ -2301,7 +2301,12 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     showRatings: (_p.get('showRatings') ?? '1') !== '0',
     ratingType:  _p.get('ratingType') ?? 'season',
     diff:        _p.get('diff') ?? 'normal',
+    yearMin:     parseInt(_p.get('yearMin') ?? '1980', 10),
+    yearMax:     parseInt(_p.get('yearMax') ?? '2026', 10),
   };
+
+  // Player pool restricted to the selected year range
+  const PLAYERS_POOL = PLAYERS.filter(pl=>pl.year>=SETTINGS.yearMin && pl.year<=SETTINGS.yearMax);
 
   let rerolls = SETTINGS.rerolls;
   let currentDraw=null; // {nat, year}
@@ -2333,7 +2338,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     const emptySlots=POSITIONS.filter(p=>!filled[p.id]);
     const neededPos=new Set(emptySlots.flatMap(s=>POS_ELIGIBLE[s.id]));
     const combos=new Set();
-    PLAYERS.forEach(p=>{
+    PLAYERS_POOL.forEach(p=>{
       if(neededPos.has(p.pos) && !usedNames.has(p.name)) combos.add(p.nat+"|"+p.year);
     });
     return [...combos];
@@ -2345,7 +2350,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     if(!draws.length){ idleStage(); return; }
 
     const natKeys=Object.keys(NAT);
-    const allYears=[...new Set(PLAYERS.map(p=>p.year))].sort();
+    const allYears=[...new Set(PLAYERS_POOL.map(p=>p.year))].sort();
     const btn=$("#spinBtn"); if(btn) btn.disabled=true;
     const natEl=$("#spinNat"), yearEl=$("#spinYear");
     let ticks=0;
@@ -2407,7 +2412,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
   function renderSquad(nat,year,sortBy=SETTINGS.showRatings?'rating':'pos'){
     showDrawPanel(nat,year);
     const n=NAT[nat];
-    const allSquad=PLAYERS.filter(p=>p.nat===nat&&p.year===year);
+    const allSquad=PLAYERS_POOL.filter(p=>p.nat===nat&&p.year===year);
     const squad=allSquad.slice().sort(sortBy==='rating'
       ? (a,b)=>b.rating-a.rating
       : (a,b)=>POS_ORDER.indexOf(a.pos)-POS_ORDER.indexOf(b.pos));

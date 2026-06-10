@@ -200,6 +200,80 @@
   #ratingTypeGroup [data-val="prime"].selected { border-color: #4bc8a0; background: rgba(75,200,160,.09); }
   #ratingTypeGroup [data-val="prime"].selected .opt-card-title { color: #4bc8a0; }
 
+  /* year range slider */
+  .year-range-display {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .range-wrap {
+    position: relative;
+    height: 28px;
+  }
+  .range-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    transform: translateY(-50%);
+  }
+  .range-fill {
+    position: absolute;
+    top: 50%;
+    height: 4px;
+    background: var(--accent);
+    border-radius: 2px;
+    transform: translateY(-50%);
+  }
+  .range-wrap input[type="range"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    margin: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: none;
+  }
+  .range-wrap input[type="range"]::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    background: transparent;
+    height: 4px;
+  }
+  .range-wrap input[type="range"]::-moz-range-track {
+    background: transparent;
+    height: 4px;
+  }
+  .range-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    margin-top: -8px;
+    cursor: pointer;
+    pointer-events: all;
+  }
+  .range-wrap input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    cursor: pointer;
+    pointer-events: all;
+  }
+  #yearMin { z-index: 2; }
+  #yearMax { z-index: 1; }
+
   /* CTA */
   .cta {
     width: 100%;
@@ -301,6 +375,18 @@
     </div>
   </div>
 
+  <div>
+    <div class="section-label">Year Range</div>
+    <div class="year-range-display" id="yearRangeDisplay">1980 – 2026</div>
+    <div class="range-wrap">
+      <div class="range-track"></div>
+      <div class="range-fill" id="rangeFill"></div>
+      <input type="range" id="yearMin" min="1980" max="2026" step="1" value="1980">
+      <input type="range" id="yearMax" min="1980" max="2026" step="1" value="2026">
+    </div>
+    <div class="card-desc" style="margin-top:8px;">Restrict the player pool to a specific era (minimum 15-year span)</div>
+  </div>
+
   <hr>
 
   <button class="cta" onclick="startGame()">Start Run →</button>
@@ -360,10 +446,51 @@
       rerolls,
       showRatings: showRatings ? '1' : '0',
       ratingType,
-      diff
+      diff,
+      yearMin,
+      yearMax
     });
     window.location.href = 'sixnations.html?' + params.toString();
   }
+
+  // year range slider
+  const YEAR_FLOOR = 1980, YEAR_CEIL = 2026, MIN_SPAN = 15;
+  let yearMin = YEAR_FLOOR, yearMax = YEAR_CEIL;
+  const yearMinEl = document.getElementById('yearMin');
+  const yearMaxEl = document.getElementById('yearMax');
+  const yearRangeDisplay = document.getElementById('yearRangeDisplay');
+  const rangeFill = document.getElementById('rangeFill');
+
+  function updateRangeUI() {
+    yearRangeDisplay.textContent = `${yearMin} – ${yearMax}`;
+    const span = YEAR_CEIL - YEAR_FLOOR;
+    const leftPct = ((yearMin - YEAR_FLOOR) / span) * 100;
+    const rightPct = ((yearMax - YEAR_FLOOR) / span) * 100;
+    rangeFill.style.left = leftPct + '%';
+    rangeFill.style.width = (rightPct - leftPct) + '%';
+  }
+
+  yearMinEl.addEventListener('input', () => {
+    let v = parseInt(yearMinEl.value, 10);
+    if (yearMax - v < MIN_SPAN) {
+      v = yearMax - MIN_SPAN;
+      yearMinEl.value = v;
+    }
+    yearMin = v;
+    updateRangeUI();
+  });
+
+  yearMaxEl.addEventListener('input', () => {
+    let v = parseInt(yearMaxEl.value, 10);
+    if (v - yearMin < MIN_SPAN) {
+      v = yearMin + MIN_SPAN;
+      yearMaxEl.value = v;
+    }
+    yearMax = v;
+    updateRangeUI();
+  });
+
+  updateRangeUI();
 </script>
 </body>
 </html>

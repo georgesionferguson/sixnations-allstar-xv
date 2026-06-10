@@ -2471,7 +2471,8 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     const tryScorerPool=[];
     Object.values(filled).filter(Boolean).forEach(p=>{
       const posW=POS_TRY_WEIGHT[p.pos]||1;
-      const ratingW=Math.max(0.2,(p.rating-72)/26); // 0.2 at 72, 1.0 at 98
+      // Sharper curve so standout players dominate the try pool — lets a star rack up a real haul over the season
+      const ratingW=Math.pow(Math.max(0.05,(p.rating-65)/30),1.8);
       const totalW=Math.max(1,Math.round(posW*ratingW*8));
       const lastName=p.name.split(' ').slice(-1)[0];
       for(let i=0;i<totalW;i++) tryScorerPool.push(lastName);
@@ -2923,7 +2924,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       '🏉 Six Nations All-Stars',
       `${run.slam?'🏆 GRAND SLAM':run.pos===1?'🏆 Champions':ordinal(run.pos)+' place'} — ${run.wins}W ${run.draws}D ${run.losses}L`,
       `${run.pts} pts · Squad: ${run.overall} OVR`,
-      goldenBoot?`👟 Golden Boot: ${goldenBoot.name} (${goldenBoot.tries} tries)`:'',
+      goldenBoot?`👟 Top Try Scorer: ${goldenBoot.name} (${goldenBoot.tries} tries)`:'',
       pot?`🌟 Player of Tournament: ${pot.name}`:'',
       '',
       '⚡ Think you could do better? Build your own XV free:',
@@ -2962,7 +2963,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
         <!-- Awards -->
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
           <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;">
-            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7e6a;margin-bottom:4px;">👟 Golden Boot</div>
+            <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#8a7e6a;margin-bottom:4px;">👟 Top Try Scorer</div>
             <div style="font-size:13px;font-weight:700;color:#f0ebe0;">${goldenBoot?goldenBoot.name:'—'}</div>
             <div style="font-size:11px;color:#c8a84b;">${goldenBoot?goldenBoot.tries+' tries':'—'}</div>
           </div>

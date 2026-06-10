@@ -2534,12 +2534,18 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     }
     if(Math.random()<0.30){const t=Math.random()<0.5?'you':'them';events.push({min:getMin(15,70),team:t,type:'yellow',scorer:t==='you'?pick(myNames):''});}
     if(Math.random()<0.06){const t=Math.random()<0.5?'you':'them';events.push({min:getMin(10,65),team:t,type:'red',scorer:t==='you'?pick(myNames):''});}
-    events.sort((a,b)=>a.min-b.min);
     let myScore=0,theirScore=0;
     events.forEach(e=>{
       if(e.team==='you'){if(e.type==='try')myScore+=5;else if(e.type==='conversion')myScore+=2;else if(e.type==='penalty')myScore+=3;}
       else{if(e.type==='try')theirScore+=5;else if(e.type==='conversion')theirScore+=2;else if(e.type==='penalty')theirScore+=3;}
     });
+    // Keep games interesting — top up with penalties for the trailing side if combined score is too low
+    while(myScore+theirScore<12){
+      const min=getMin();
+      if(myScore<=theirScore){ events.push({min,team:'you',type:'penalty',scorer:kicker}); myScore+=3; }
+      else{ events.push({min,team:'them',type:'penalty',scorer:''}); theirScore+=3; }
+    }
+    events.sort((a,b)=>a.min-b.min);
     return{events,myScore,theirScore,myTries,theirTries,chinkUnit,chink};
   }
 

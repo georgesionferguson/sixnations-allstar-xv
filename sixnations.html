@@ -11,6 +11,7 @@
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   :root{
     --bg:#0e0a04;
@@ -2916,7 +2917,9 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       `${run.pts} pts · Squad: ${run.overall} OVR`,
       goldenBoot?`👟 Golden Boot: ${goldenBoot.name} (${goldenBoot.tries} tries)`:'',
       pot?`🌟 Player of Tournament: ${pot.name}`:'',
-      'Build yours → sixnationsallstars.app'
+      '',
+      '⚡ Think you could do better? Build your own XV free:',
+      'https://sixnationsallstars.com'
     ].filter(Boolean).join('\n');
 
     // Build overlay
@@ -2924,7 +2927,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     ov.style.cssText='position:fixed;inset:0;background:rgba(5,4,2,.92);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-y:auto;padding:16px;';
     ov.innerHTML=`
       <!-- Share card -->
-      <div style="width:min(420px,100%);background:linear-gradient(180deg,#1a1208,#100c06);border:1px solid rgba(200,168,75,.25);border-radius:18px;padding:22px;margin-bottom:14px;">
+      <div id="shareCardEl" style="width:min(420px,100%);background:linear-gradient(180deg,#1a1208,#100c06);border:1px solid rgba(200,168,75,.25);border-radius:18px;padding:22px;margin-bottom:14px;">
         <!-- Header -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <span style="font-size:14px;font-weight:800;color:#f0ebe0;">Six Nations All-Stars</span>
@@ -2962,25 +2965,65 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
           </div>
         </div>
 
-        <!-- Branding -->
-        <div style="text-align:center;font-size:11px;color:#5e5446;">sixnationsallstars.app</div>
+        <!-- CTA -->
+        <div style="text-align:center;padding:12px;border:1px dashed rgba(200,168,75,.35);border-radius:10px;">
+          <div style="font-size:12px;font-weight:800;color:#c8a84b;letter-spacing:.5px;">⚡ Think you could do better?</div>
+          <div style="font-size:11px;color:#8a7e6a;margin-top:3px;">Build your own XV free at <span style="color:#f0ebe0;font-weight:700;">sixnationsallstars.com</span></div>
+        </div>
       </div>
 
       <!-- Share buttons -->
       <div style="width:min(420px,100%);display:flex;flex-direction:column;gap:8px;">
+        <div id="shareLoading" style="display:none;text-align:center;font-size:12px;color:#8a7e6a;padding:6px;">Generating image…</div>
         <button id="shareWA" style="width:100%;padding:14px;border:none;border-radius:10px;background:#25d366;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">WhatsApp</button>
         <button id="shareX" style="width:100%;padding:14px;border:none;border-radius:10px;background:#000;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">𝕏 / Twitter</button>
-        <button id="shareCopy" style="width:100%;padding:14px;border:1px solid rgba(200,168,75,.4);border-radius:10px;background:rgba(200,168,75,.08);color:#c8a84b;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">🔗 Copy link</button>
+        <button id="shareImg" style="width:100%;padding:14px;border:1px solid rgba(200,168,75,.4);border-radius:10px;background:rgba(200,168,75,.08);color:#c8a84b;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">📸 Save image</button>
+        <button id="shareCopy" style="width:100%;padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:none;color:#8a7e6a;font-size:14px;cursor:pointer;font-family:inherit;">🔗 Copy link</button>
         <button id="shareClose" style="width:100%;padding:13px;border:1px solid rgba(255,255,255,.1);border-radius:10px;background:none;color:#8a7e6a;font-size:14px;cursor:pointer;font-family:inherit;">Close</button>
       </div>`;
 
     document.body.appendChild(ov);
 
+    const cardEl=document.getElementById('shareCardEl');
+    const loadingEl=document.getElementById('shareLoading');
+
+    function captureCard(){
+      loadingEl.style.display='block';
+      return html2canvas(cardEl,{backgroundColor:'#100c06',scale:2})
+        .then(canvas=>new Promise(res=>canvas.toBlob(blob=>res(blob),'image/png')))
+        .finally(()=>{loadingEl.style.display='none';});
+    }
+
+    function downloadBlob(blob,filename){
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function shareImageWithText(fallbackUrl){
+      const blob=await captureCard();
+      const file=new File([blob],'six-nations-allstars.png',{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        try{
+          await navigator.share({files:[file],text:shareText,title:'Six Nations All-Stars'});
+          return;
+        }catch(e){ if(e.name==='AbortError')return; }
+      }
+      downloadBlob(blob,'six-nations-allstars.png');
+      toast('Image saved — attach it to your post!');
+      window.open(fallbackUrl,'_blank');
+    }
+
     document.getElementById('shareWA').addEventListener('click',()=>{
-      window.open('https://wa.me/?text='+encodeURIComponent(shareText),'_blank');
+      shareImageWithText('https://wa.me/?text='+encodeURIComponent(shareText));
     });
     document.getElementById('shareX').addEventListener('click',()=>{
-      window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText),'_blank');
+      shareImageWithText('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText));
+    });
+    document.getElementById('shareImg').addEventListener('click',async()=>{
+      const blob=await captureCard();
+      downloadBlob(blob,'six-nations-allstars.png');
+      toast('Image saved!');
     });
     document.getElementById('shareCopy').addEventListener('click',()=>{
       copyText(shareText,()=>{toast('Copied to clipboard!');});

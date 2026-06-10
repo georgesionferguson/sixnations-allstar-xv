@@ -173,6 +173,9 @@
   .table tr.you .teamcell{font-weight:800;color:var(--accent)}
   .table td.c{text-align:center}
   .table td.pts{font-weight:800;text-align:center}
+  .ptable{table-layout:fixed}
+  .ptable th:first-child,.ptable td:first-child{width:auto}
+  .ptable th.c,.ptable td.c{width:15%}
   .teamcell{display:flex;align-items:center;gap:9px}
   .teamcell .dot{width:9px;height:9px;border-radius:50%}
   .rounds h3{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:4px 0 12px}
@@ -257,10 +260,11 @@
     .u-bar{height:5px}
 
     /* modal full screen on mobile */
-    .modal{border-radius:12px;padding:20px}
+    .modal{border-radius:12px;padding:14px}
     .modal h2{font-size:20px}
-    .table{font-size:12px}
-    .table td,.table th{padding:8px 6px}
+    .table{font-size:11px}
+    .table td,.table th{padding:7px 3px}
+    .table td:first-child,.table th:first-child{padding-left:4px}
 
     footer{margin-top:24px;padding-top:14px}
   }
@@ -2701,7 +2705,10 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       const teamStr=isYou?`<span style="color:var(--accent)">All-Stars</span>`:`<span style="color:${n.col}">${n.name}</span>`;
       const row=document.createElement("div");
       row.style.cssText="display:flex;align-items:center;gap:10px;padding:9px 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:13px;";
-      row.innerHTML=`<span style="font-size:16px">${EVENT_ICON[e.type]||'·'}</span><span style="flex:1">${teamStr} <b>${EVENT_LABEL[e.type]}</b>${nameStr}${assistStr}</span><span style="color:var(--muted);font-size:11px">${e.min}'</span>`;
+      const iconStr=(e.type==='conversion'&&isYou)
+        ?`<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--accent)"></span>`
+        :`<span style="font-size:16px">${EVENT_ICON[e.type]||'·'}</span>`;
+      row.innerHTML=`${iconStr}<span style="flex:1">${teamStr} <b>${EVENT_LABEL[e.type]}</b>${nameStr}${assistStr}</span><span style="color:var(--muted);font-size:11px">${e.min}'</span>`;
       feed.insertBefore(row,feed.firstChild);
     }
     const totalEvents=g.events.length;
@@ -2813,10 +2820,10 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
         const grpCol=GROUP_COL[grp];
         const ratingCol=p.rating>=90?'#36d17a':p.rating>=84?'#9ade4a':p.rating>=76?'var(--gold)':p.rating>=68?'#ff9a55':'#ff5b6e';
         return `<tr style="border-left:3px solid ${grpCol}">
-          <td style="padding-left:10px"><div style="display:flex;align-items:center;gap:8px;">
+          <td style="padding-left:8px;max-width:0;"><div style="display:flex;align-items:center;gap:6px;min-width:0;">
             <span style="background:${grpCol};color:#0e0a04;font-size:9px;font-weight:800;padding:2px 5px;border-radius:4px;flex-shrink:0;min-width:18px;text-align:center">${shirtNum}</span>
-            <span style="font-size:13px;font-weight:600">${p.name}</span>
-            <span style="font-size:10px;color:var(--muted-2)">'${String(filled[slotInfo?.slot]?.seasonDrawn||'').slice(-2)}</span>
+            <span style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">${p.name}</span>
+            <span style="font-size:10px;color:var(--muted-2);flex-shrink:0;">'${String(filled[slotInfo?.slot]?.seasonDrawn||'').slice(-2)}</span>
           </div></td>
           <td class="c" style="font-weight:800;color:${ratingCol}">${p.rating}</td>
           <td class="c" style="font-weight:800;color:${p.tries>0?'var(--gold)':'var(--muted-2)'}">${p.tries||'·'}</td>
@@ -2862,7 +2869,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
 
       <!-- Player breakdown -->
       <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Player Stats</div>
-      <table class="table" style="margin-bottom:24px;">
+      <table class="table ptable" style="margin-bottom:24px;">
         <thead><tr>
           <th>Player</th>
           <th class="c">Rtg</th>

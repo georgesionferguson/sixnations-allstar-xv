@@ -2457,9 +2457,9 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     });
     const pickTry=()=>tryScorerPool[Math.floor(Math.random()*tryScorerPool.length)]||kicker;
 
-    // Harder opponents
-    const oppAtk=oppRating*0.68;
-    const oppDef=oppRating*0.68;
+    // Opponent attack/defence on the same scale as your own ratings
+    const oppAtk=oppRating;
+    const oppDef=oppRating;
     const backsWeakness=(chinkUnit==='halves'||chinkUnit==='centres'||chinkUnit==='back3')?chink*0.08:0;
     const atkAdv=(attackRating-backsWeakness*10-oppDef)*0.11;
     const myTries=Math.max(0,Math.min(9,Math.round(1.6+atkAdv+(Math.random()*3.5-1.75))));

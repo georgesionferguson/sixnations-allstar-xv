@@ -2992,25 +2992,11 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       URL.revokeObjectURL(url);
     }
 
-    async function shareImageWithText(fallbackUrl){
-      const blob=await captureCard();
-      const file=new File([blob],'six-nations-allstars.png',{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){
-        try{
-          await navigator.share({files:[file],text:shareText,title:'Six Nations All-Stars'});
-          return;
-        }catch(e){ if(e.name==='AbortError')return; }
-      }
-      downloadBlob(blob,'six-nations-allstars.png');
-      toast('Image saved — attach it to your post!');
-      window.open(fallbackUrl,'_blank');
-    }
-
     document.getElementById('shareWA').addEventListener('click',()=>{
-      shareImageWithText('https://wa.me/?text='+encodeURIComponent(shareText));
+      window.open('https://wa.me/?text='+encodeURIComponent(shareText),'_blank');
     });
     document.getElementById('shareX').addEventListener('click',()=>{
-      shareImageWithText('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText));
+      window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(shareText),'_blank');
     });
     document.getElementById('shareImg').addEventListener('click',async()=>{
       const blob=await captureCard();

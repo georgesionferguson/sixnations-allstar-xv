@@ -2721,7 +2721,6 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     const ps=sim.playerStats||{};
     const totalTries=Object.values(ps).reduce((s,p)=>s+p.tries,0);
     const totalTackles=Object.values(ps).reduce((s,p)=>s+p.tackles,0);
-    const kicker=filled['FH']?filled['FH'].name.split(' ').slice(-1)[0]:'';
 
     // Result banner
     let banner,cls;
@@ -2790,16 +2789,12 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       })
       .map(p=>{
         const ln=p.name.split(' ').slice(-1)[0];
-        const isKicker=ln===kicker;
         const slotInfo=nameToSlot[ln];
         const shirtNum=slotInfo?.num||POS_SHORT_MAP[p.pos]||'?';
         const slotId=slotInfo?.slot||'';
         const grp=POS_GROUP[slotId]||'front';
         const grpCol=GROUP_COL[grp];
         const ratingCol=p.rating>=90?'#36d17a':p.rating>=84?'#9ade4a':p.rating>=76?'var(--gold)':p.rating>=68?'#ff9a55':'#ff5b6e';
-        const convStr=isKicker
-          ?`<td class="c" style="color:var(--accent)">${p.conversions}/${p.conversions+p.convMissed}</td><td class="c" style="color:var(--gold)">${p.penalties}${p.penMissed?`<span style="color:var(--gold)">/${p.penalties+p.penMissed}</span>`:''}</td>`
-          :`<td class="c" style="color:var(--muted-2)">—</td><td class="c" style="color:var(--muted-2)">—</td>`;
         return `<tr style="border-left:3px solid ${grpCol}">
           <td style="padding-left:10px"><div style="display:flex;align-items:center;gap:8px;">
             <span style="background:${grpCol};color:#0e0a04;font-size:9px;font-weight:800;padding:2px 5px;border-radius:4px;flex-shrink:0;min-width:18px;text-align:center">${shirtNum}</span>
@@ -2809,7 +2804,6 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
           <td class="c" style="font-weight:800;color:${ratingCol}">${p.rating}</td>
           <td class="c" style="font-weight:800;color:${p.tries>0?'var(--gold)':'var(--muted-2)'}">${p.tries||'·'}</td>
           <td class="c" style="color:${p.assists>0?'var(--accent)':'var(--muted-2)'}">${p.assists||'·'}</td>
-          ${convStr}
           <td class="c" style="color:var(--muted)">${p.tackles}</td>
         </tr>`;
       }).join("");
@@ -2857,8 +2851,6 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
           <th class="c">Rtg</th>
           <th class="c">Tries</th>
           <th class="c">Assists</th>
-          <th class="c">Conv</th>
-          <th class="c">Pens</th>
           <th class="c">Tackles</th>
         </tr></thead>
         <tbody>${playerRows}</tbody>

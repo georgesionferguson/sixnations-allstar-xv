@@ -2478,15 +2478,25 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     });
     const pickTry=()=>tryScorerPool[Math.floor(Math.random()*tryScorerPool.length)]||kicker;
 
+    // Cards — decided up front so they can affect the scoreline
+    let yellowTeam=null,redTeam=null;
+    if(Math.random()<0.30) yellowTeam=Math.random()<0.5?'you':'them';
+    if(Math.random()<0.035) redTeam=Math.random()<0.5?'you':'them';
+    let atkCard=0,defCard=0;
+    if(yellowTeam==='you'){atkCard-=0.2;defCard-=0.2;}
+    if(yellowTeam==='them'){atkCard+=0.2;defCard+=0.2;}
+    if(redTeam==='you'){atkCard-=0.9;defCard-=0.9;}
+    if(redTeam==='them'){atkCard+=0.9;defCard+=0.9;}
+
     // Opponent attack/defence on the same scale as your own ratings
     const oppAtk=oppRating;
     const oppDef=oppRating;
     const backsWeakness=(chinkUnit==='halves'||chinkUnit==='centres'||chinkUnit==='back3')?chink*0.08:0;
-    const atkAdv=(attackRating-backsWeakness*10-oppDef)*0.11;
+    const atkAdv=(attackRating-backsWeakness*10-oppDef)*0.11+atkCard;
     const myTries=Math.max(0,Math.min(9,Math.round(1.6+atkAdv+(Math.random()*3.5-1.75))));
     const setPieceWeakness=(chinkUnit==='front'||chinkUnit==='locks')?chink*0.10:0;
     const defWeakness=(chinkUnit==='backRow')?chink*0.08:0;
-    const defAdv=(defenceRating-setPieceWeakness*10-defWeakness*10-oppAtk)*0.11;
+    const defAdv=(defenceRating-setPieceWeakness*10-defWeakness*10-oppAtk)*0.11+defCard;
     const theirTries=Math.max(0,Math.min(9,Math.round(1.6-defAdv+(Math.random()*3.5-1.75))));
     const setPieceRatio=Math.max(0,(oppRating-setPieceRating)*0.05);
     const myPens=Math.floor(rand(0,3))+Math.round(setPieceRatio)+(myTries<2?Math.floor(rand(1,2)):0);
@@ -2533,8 +2543,8 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       if(Math.random()<0.78) events.push({min:getMin(),team:'them',type:'penalty',scorer:''});
       else events.push({min:getMin(),team:'them',type:'penalty_missed',scorer:''});
     }
-    if(Math.random()<0.30){const t=Math.random()<0.5?'you':'them';events.push({min:getMin(15,70),team:t,type:'yellow',scorer:t==='you'?pick(myNames):''});}
-    if(Math.random()<0.06){const t=Math.random()<0.5?'you':'them';events.push({min:getMin(10,65),team:t,type:'red',scorer:t==='you'?pick(myNames):''});}
+    if(yellowTeam) events.push({min:getMin(15,70),team:yellowTeam,type:'yellow',scorer:yellowTeam==='you'?pick(myNames):''});
+    if(redTeam) events.push({min:getMin(10,65),team:redTeam,type:'red',scorer:redTeam==='you'?pick(myNames):''});
     let myScore=0,theirScore=0;
     events.forEach(e=>{
       if(e.team==='you'){if(e.type==='try')myScore+=5;else if(e.type==='conversion')myScore+=2;else if(e.type==='penalty')myScore+=3;}

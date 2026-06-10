@@ -339,6 +339,9 @@
     document.querySelectorAll('#diffCards .card').forEach(c => {
       c.classList.toggle('selected', c.dataset.diff === d);
     });
+    if (d === 'hard') {
+      selectOption('ratings', 'off');
+    }
   }
 
   function selectOption(key, val) {

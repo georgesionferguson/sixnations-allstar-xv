@@ -276,10 +276,11 @@
   <!-- LEFT RAIL -->
   <aside class="rail">
     <div class="rail-head">
-      <div><div class="fl">Your XV</div><h2>All-Star Selection</h2></div>
+      <div><div class="fl">Your XV</div><h2>All-Star Selection</h2>
+        <button class="resync" id="resetBtn" title="Reset squad" style="margin-top:4px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:0">↻ Reset squad</button>
+      </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
-        <div class="rerolls">Rerolls<br><span class="cnt" id="rerollCnt">11</span>
-          <button class="resync" id="resetBtn" title="Reset squad">↻</button></div>
+        <div class="rerolls">Rerolls<br><span class="cnt" id="rerollCnt">11</span></div>
         <div style="text-align:right">
           <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Overall</div>
           <div id="ovNum" style="font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--ink);line-height:1">—</div>
@@ -2294,9 +2295,8 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
           </div>
         </div>
         <div class="opts">${cards}</div>
-        <div class="pick-actions" style="margin-top:14px;display:flex;gap:10px;justify-content:center">
-          <button class="ghost" id="redrawBtn" ${rerolls<=0?'disabled':''}>↻ Redraw (${rerolls} left)</button>
-          <button class="ghost" id="backToSpinBtn">← New draw</button>
+        <div class="pick-actions" style="margin-top:14px;display:flex;justify-content:center">
+          <button class="spinbtn" id="redrawBtn" ${rerolls<=0?'disabled':''} style="width:100%;max-width:320px;justify-content:center">↻ Redraw (${rerolls} left)</button>
         </div>
       </div>`;
 
@@ -2322,8 +2322,6 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     if(rb) rb.addEventListener("click",()=>{
       if(rerolls>0){ rerolls--; updateRerolls(); currentDraw=null; renderSpinStage(); setTimeout(doSpin,50); }
     });
-    const bb=$("#backToSpinBtn");
-    if(bb) bb.addEventListener("click",()=>{ currentDraw=null; renderSpinStage(); });
   }
 
   // If player fits multiple empty slots, ask which one

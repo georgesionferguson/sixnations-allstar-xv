@@ -2264,7 +2264,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     if(panel) panel.style.display="none";
   }
 
-  function renderSquad(nat,year,sortBy='rating'){
+  function renderSquad(nat,year,sortBy=SETTINGS.showRatings?'rating':'pos'){
     showDrawPanel(nat,year);
     const n=NAT[nat];
     const allSquad=PLAYERS.filter(p=>p.nat===nat&&p.year===year);
@@ -2309,7 +2309,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
             <span style="padding:5px 14px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(255,255,255,.06);color:var(--ink)">${year}</span>
           </div>
           <div style="display:flex;gap:4px">
-            <button class="ghost sort-btn" id="sortRating" style="${sortBy==='rating'?'border-color:var(--accent);color:var(--ink)':''}">Rating</button>
+            ${SETTINGS.showRatings?`<button class="ghost sort-btn" id="sortRating" style="${sortBy==='rating'?'border-color:var(--accent);color:var(--ink)':''}">Rating</button>`:''}
             <button class="ghost sort-btn" id="sortPos" style="${sortBy==='pos'?'border-color:var(--accent);color:var(--ink)':''}">Position</button>
           </div>
         </div>
@@ -2319,7 +2319,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
         </div>
       </div>`;
 
-    $("#sortRating").addEventListener("click",()=>renderSquad(nat,year,"rating"));
+    if(SETTINGS.showRatings) $("#sortRating").addEventListener("click",()=>renderSquad(nat,year,"rating"));
     $("#sortPos").addEventListener("click",()=>renderSquad(nat,year,"pos"));
 
     $("#stage").querySelectorAll(".squad-opt").forEach(b=>{

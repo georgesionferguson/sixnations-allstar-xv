@@ -161,9 +161,10 @@
   .finish-banner.win{background:linear-gradient(180deg,rgba(200,168,75,.14),rgba(200,168,75,.04));border:1px solid var(--accent);color:var(--accent)}
   .finish-banner.mid{background:var(--panel);border:1px solid var(--line);color:var(--ink)}
   .finish-banner small{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-top:5px;letter-spacing:0}
-  .result-actions{display:flex;gap:10px;margin:6px 0 10px}
+  .result-actions{display:flex;gap:10px;margin:6px 0 10px;flex-wrap:wrap}
   .result-actions .go-again{flex:2;margin-top:0}
   .result-actions .share{flex:1;margin-top:0}
+  .result-actions .home{flex:1;margin-top:0}
   .table{width:100%;border-collapse:collapse;margin-bottom:22px;font-size:13px}
   .table th{text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line)}
   .table td{padding:10px;border-bottom:1px solid rgba(255,255,255,.04)}
@@ -2147,6 +2148,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
 
   let rerolls = SETTINGS.rerolls;
   let currentDraw=null; // {nat, year}
+  let onFinalView=false;
 
   /* ---- build pitch ---- */
   POSITIONS.forEach(pos=>{
@@ -2615,6 +2617,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
 
   function showChampionship(){
     const sim=simulate();
+    onFinalView=false;
     $("#modalBg").classList.add("show");
     runGame(sim,0);
   }
@@ -2833,11 +2836,13 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
       <div class="result-actions">
         <button class="cta go-again" id="goAgain">↻ New run</button>
         <button class="ghost share" id="shareRun">Share result</button>
+        <button class="ghost home" id="returnHome">Return to homepage</button>
       </div>`;
 
-    $("#closeModal")&&$("#closeModal").addEventListener("click",()=>$("#modalBg").classList.remove("show"));
+    onFinalView=true;
     $("#goAgain").addEventListener("click",()=>{ window.location.href='settings.html'; });
     $("#shareRun").addEventListener("click",()=>shareRun(run,sim));
+    $("#returnHome").addEventListener("click",()=>{ window.location.href='index.html'; });
   }
 
 
@@ -3006,7 +3011,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
   }
 
   $("#resetBtn").addEventListener("click",reset);
-  $("#modalBg").addEventListener("click",e=>{if(e.target.id==="modalBg")$("#modalBg").classList.remove("show");});
+  $("#modalBg").addEventListener("click",e=>{if(e.target.id==="modalBg"&&!onFinalView)$("#modalBg").classList.remove("show");});
 
   buildRatings(); updateRerolls(); renderSpinStage(); updateProgress();
 })();

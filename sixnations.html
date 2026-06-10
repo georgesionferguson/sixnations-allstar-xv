@@ -2620,6 +2620,12 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
         }
       });
     });
+    // Shuffle fixture order so the run doesn't always start with Ireland
+    for(let i=myGameEvents.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [myGameEvents[i],myGameEvents[j]]=[myGameEvents[j],myGameEvents[i]];
+      [myGames[i],myGames[j]]=[myGames[j],myGames[i]];
+    }
     return{standings,myGames,myGameEvents,startAvg,profile,playerStats,oppStrength};
   }
   function score(t,pf,pa){t.P++;t.PF+=pf;t.PA+=pa;if(pf>pa){t.W++;t.Pts+=4;}else if(pf===pa){t.D++;t.Pts+=2;}else t.L++;}

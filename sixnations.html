@@ -390,7 +390,7 @@
     <div class="ratings" id="ratings" style="margin-top:24px">
       <div class="ov-row">
         <div class="ov-lbl">Overall</div>
-        <div class="ov-num" id="ovNum">—</div>
+        <div class="ov-num" id="ovNumBig">—</div>
       </div>
       <div class="unit-list" id="unitList"></div>
     </div>
@@ -3565,6 +3565,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     const xv=POSITIONS.map(p=>filled[p.id]).filter(Boolean);
     const overall = xv.length? Math.round(xv.reduce((s,p)=>s+p.rating,0)/xv.length) : null;
     $("#ovNum").textContent = overall===null? "—" : overall;
+    $("#ovNumBig").textContent = overall===null? "—" : overall;
     UNITS.forEach(u=>{
       const avg=unitAvg(u.slots);
       const val=$("#uv-"+u.id), bar=$("#ub-"+u.id);

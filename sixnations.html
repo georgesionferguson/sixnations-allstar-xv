@@ -3065,7 +3065,7 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
     const profile=getSquadProfile();
     const startAvg=profile.overall;
     // Tougher opponents — requires ~88+ overall for Grand Slam
-    const oppStrength={IRE:86,FRA:85,ENG:83,SCO:80,WAL:78,ITA:73};
+    const oppStrength={IRE:85,FRA:84,ENG:82,SCO:79,WAL:77,ITA:72};
     const opps=Object.keys(oppStrength);
     let table={};
     opps.forEach(o=>table[o]={name:NAT[o].name,nat:o,P:0,W:0,D:0,L:0,PF:0,PA:0,Pts:0});

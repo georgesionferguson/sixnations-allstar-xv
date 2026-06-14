@@ -2870,7 +2870,10 @@ PLAYERS.forEach((pl,i)=>pl.id=i);
   function commitPick(pl,year,slotId){
     if(usedNames.has(pl.name)) return;
     const prev=filled[slotId]; if(prev) usedNames.delete(prev.name);
-    const chosen=Object.assign({},pl,{seasonDrawn:year});
+    const rating = SETTINGS.ratingType === 'prime'
+      ? Math.max(...PLAYERS.filter(p => p.name === pl.name).map(p => p.rating))
+      : pl.rating;
+    const chosen=Object.assign({},pl,{seasonDrawn:year,rating});
     filled[slotId]=chosen; usedNames.add(pl.name);
     const pos=POSITIONS.find(p=>p.id===slotId);
     paint({id:slotId},chosen);
